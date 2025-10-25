@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Preference Groups Dashboard</title>
+  <style>
+    :root {
+      --primary: #4361ee;
+      --primary-dark: #3a56d4;
+      --secondary: #7209b7;
+      --success: #4cc9f0;
+      --danger: #f72585;
+      --warning: #f8961e;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --gray: #6c757d;
+      --border: #dee2e6;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --radius: 8px;
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      color: var(--dark);
+      line-height: 1.6;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: var(--primary);
+      font-weight: 600;
+      position: relative;
+      padding-bottom: 10px;
+    }
+
+    h2:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .search-filter {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      position: relative;
+      width: 250px;
+    }
+
+    .search-box input {
+      padding: 10px 12px 10px 40px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      width: 100%;
+      font-size: 14px;
+      transition: var(--transition);
+    }
+
+    .search-box input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray);
+    }
+
+    .filter-select {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 14px;
+      background: white;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .filter-select:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .btn {
+      padding: 10px 18px;
+      background: var(--primary);
+      border: none;
+      border-radius: var(--radius);
+      color: white;
+      cursor: pointer;
+      font-weight: 500;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-secondary {
+      background: var(--secondary);
+    }
+
+    .btn-secondary:hover {
+      background: #6511a0;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+    }
+
+    .btn-danger:hover {
+      background: #e01a6f;
+    }
+
+    .btn-success {
+      background: var(--success);
+    }
+
+    .btn-success:hover {
+      background: #3ab0d9;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+
+    .preference-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .preference-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      border-left: 4px solid var(--primary);
+    }
+
+    .preference-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 15px;
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 5px;
+    }
+
+    .card-type {
+      display: inline-block;
+      padding: 4px 10px;
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .card-options {
+      display: flex;
+      gap: 8px;
+    }
+
+    .option-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--gray);
+      transition: var(--transition);
+      padding: 4px;
+      border-radius: 4px;
+    }
+
+    .option-btn:hover {
+      color: var(--primary);
+      background: rgba(67, 97, 238, 0.1);
+    }
+
+    .card-details {
+      margin-bottom: 15px;
+    }
+
+    .detail-item {
+      display: flex;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+
+    .detail-label {
+      font-weight: 500;
+      width: 120px;
+      color: var(--gray);
+    }
+
+    .detail-value {
+      flex: 1;
+    }
+
+    .preferences-list {
+      margin-top: 10px;
+    }
+
+    .preferences-title {
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: var(--dark);
+    }
+
+    .preference-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .preference-tag {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .price-badge {
+      font-size: 0.7rem;
+      background: rgba(114, 9, 183, 0.1);
+      color: var(--secondary);
+      padding: 2px 6px;
+      border-radius: 12px;
+      font-weight: 500;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid var(--border);
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--gray);
+      grid-column: 1 / -1;
+    }
+
+    .empty-state p {
+      margin-bottom: 15px;
+    }
+
+    .empty-icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      color: var(--border);
+    }
+
+    .table-info {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: var(--gray);
+    }
+
+    .dependent-table-preview {
+      margin-top: 10px;
+      overflow-x: auto;
+      max-height: 200px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .dependent-table-preview table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+    }
+
+    .dependent-table-preview th,
+    .dependent-table-preview td {
+      border: 1px solid var(--border);
+      padding: 6px 8px;
+      text-align: center;
+    }
+
+    .dependent-table-preview th {
+      background: rgba(67, 97, 238, 0.1);
+      font-weight: 500;
+    }
+
+    .dependent-table-preview td {
+      background: white;
+    }
+
+    .checkbox-group {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .checkbox-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .checkbox-label {
+      font-size: 0.7rem;
+      color: var(--gray);
+    }
+
+    .checkbox-indicator {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 1px solid var(--gray);
+      border-radius: 2px;
+      position: relative;
+    }
+
+    .checkbox-indicator.checked:after {
+      content: '✓';
+      position: absolute;
+      top: -2px;
+      left: 2px;
+      font-size: 10px;
+      color: var(--primary);
+    }
+
+    .ingredient-cell {
+      text-align: left;
+      font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .search-filter {
+        width: 100%;
+      }
+      
+      .search-box {
+        width: 100%;
+      }
+      
+      .preference-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Preference Groups</h2>
+    
+    <div class="dashboard-header">
+      <div class="search-filter">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" placeholder="Search preference groups...">
+        </div>
+        <select class="filter-select" id="typeFilter">
+          <option value="all">All Types</option>
+          <option value="Independent">Independent</option>
+          <option value="Dependent">Dependent</option>
+        </select>
+      </div>
+      <a class="btn btn-secondary" style="text-decoration:none" href="{% url 'group_create' %}">
+        <span>+</span> New Preference Group
+      </a>
+    </div>
+    
+    <div class="preference-grid" id="preferenceGrid">
+      {% if groups %}
+        {% for group in groups %}
+          <div class="preference-card" data-type="{{ group.group_type }}" data-name="{{ group.name|lower }}">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">{{ group.name }}</h3>
+                <span class="card-type">{{ group.group_type }}</span>
+              </div>
+            </div>
+            
+            <div class="card-details">
+              <div class="detail-item">
+                <span class="detail-label">Options:</span>
+                <span class="detail-value">{{ group.get_group_option_display }}</span>
+              </div>
+              
+              {% if group.group_type == "Independent" %}
+                <div class="detail-item">
+                  <span class="detail-label">Pricing:</span>
+                  <span class="detail-value">{{ group.get_pricing_method_display }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Preferences:</span>
+                  <span class="detail-value">{{ group.min_pref }}-{{ group.max_pref }}</span>
+                </div>
+                {% if group.pricing_method == "Group Pricing" %}
+                <div class="detail-item">
+                  <span class="detail-label">Group Price:</span>
+                  <span class="detail-value">${{ group.group_price }}</span>
+                </div>
+                {% endif %}
+              {% endif %}
+              
+              <div class="detail-item">
+                <span class="detail-label">Created:</span>
+                <span class="detail-value">{{ group.created_at|date:"Y-m-d" }}</span>
+              </div>
+            </div>
+            
+            {% if group.group_type == "Independent" %}
+              <div class="preferences-list">
+                <div class="preferences-title">Preferences ({{ group.preferences.count }})</div>
+                <div class="preference-tags">
+                  {% for preference in group.preferences.all|slice:":3" %}
+                    <span class="preference-tag">
+                      {{ preference.name }}
+                      <span class="price-badge">${{ preference.price }}</span>
+                    </span>
+                  {% endfor %}
+                  {% if group.preferences.count > 3 %}
+                    <span class="preference-tag">+{{ group.preferences.count|add:"-3" }} more</span>
+                  {% endif %}
+                </div>
+              </div>
+            {% else %}
+              <div class="preferences-list">
+                <div class="preferences-title">Dependency Table</div>
+                <div class="dependent-table-preview">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Ingredient</th>
+                        {% for column in group.columns.all %}
+                          <th>{{ column.name }}<br><small>${{ column.price }}</small></th>
+                        {% empty %}
+                          <th>No columns</th>
+                        {% endfor %}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for ingredient in group.ingredients.all %}
+                        <tr>
+                          <td class="ingredient-cell">
+                            <strong>{{ ingredient.name }}</strong><br>
+                            <small>${{ ingredient.price }}</small>
+                          </td>
+                          {% for column in group.columns.all %}
+                            <td>
+                              {% with rule=ingredient.rules.all|dictsort:"column_id"|first %}
+                              <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                  <span class="checkbox-indicator {% if rule.show %}checked{% endif %}"></span>
+                                  <span class="checkbox-label">s</span>
+                                </div>
+                                <div class="checkbox-item">
+                                  <span class="checkbox-indicator {% if rule.default %}checked{% endif %}"></span>
+                                  <span class="checkbox-label">d</span>
+                                </div>
+                                <div class="checkbox-item">
+                                  <span class="checkbox-indicator {% if rule.required %}checked{% endif %}"></span>
+                                  <span class="checkbox-label">r</span>
+                                </div>
+                              </div>
+                              {% endwith %}
+                            </td>
+                          {% endfor %}
+                        </tr>
+                      {% empty %}
+                        <tr>
+                          <td colspan="{% widthratio group.columns.count 1 1|add:1 %}" style="text-align: center;">
+                            No ingredients added
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state">
+          <div class="empty-icon">📋</div>
+          <h3>No Preference Groups Found</h3>
+          <p>Create your first preference group to get started</p>
+          <a class="btn" style="margin-top: 15px; text-decoration:none" href="{% url 'group_create' %}">
+            Create New Group
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <script>
+    // Search and filter functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const searchInput = document.getElementById('searchInput');
+      const typeFilter = document.getElementById('typeFilter');
+      const preferenceCards = document.querySelectorAll('.preference-card');
+
+      function filterGroups() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const filterValue = typeFilter.value;
+
+        preferenceCards.forEach(card => {
+          const groupName = card.getAttribute('data-name');
+          const groupType = card.getAttribute('data-type');
+          
+          const matchesSearch = groupName.includes(searchTerm);
+          const matchesType = filterValue === 'all' || groupType === filterValue;
+          
+          if (matchesSearch && matchesType) {
+            card.style.display = 'block';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+
+        // Show empty state if no cards are visible
+        const visibleCards = Array.from(preferenceCards).filter(card => card.style.display !== 'none');
+        const emptyState = document.querySelector('.empty-state');
+        
+        if (visibleCards.length === 0 && preferenceCards.length > 0) {
+          if (!emptyState) {
+            const grid = document.getElementById('preferenceGrid');
+            grid.innerHTML = `
+              <div class="empty-state">
+                <div class="empty-icon">🔍</div>
+                <h3>No Matching Groups Found</h3>
+                <p>Try adjusting your search or filter criteria</p>
+              </div>
+            `;
+          }
+        } else if (emptyState && visibleCards.length > 0) {
+          emptyState.remove();
+        }
+      }
+
+      searchInput.addEventListener('input', filterGroups);
+      typeFilter.addEventListener('change', filterGroups);
+    });
+  </script>
+</body>
+</html>
