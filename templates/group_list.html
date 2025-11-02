@@ -175,146 +175,74 @@
       font-size: 13px;
     }
 
-    .preference-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-      gap: 20px;
+    .preference-list {
+      width: 100%;
+      border-collapse: collapse;
       margin-top: 20px;
-    }
-
-    .preference-card {
-      background: white;
-      border-radius: var(--radius);
-      padding: 20px;
       box-shadow: var(--shadow);
-      transition: var(--transition);
-      border-left: 4px solid var(--primary);
+      border-radius: var(--radius);
+      overflow: hidden;
     }
 
-    .preference-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+    .preference-list thead {
+      background-color: var(--primary);
+      color: white;
     }
 
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 15px;
-    }
-
-    .card-title {
-      font-size: 1.2rem;
+    .preference-list th {
+      padding: 15px 12px;
+      text-align: left;
       font-weight: 600;
-      color: var(--primary);
-      margin-bottom: 5px;
-    }
-
-    .card-type {
-      display: inline-block;
-      padding: 4px 10px;
-      background: rgba(67, 97, 238, 0.1);
-      color: var(--primary);
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 500;
-    }
-
-    .card-options {
-      display: flex;
-      gap: 8px;
-    }
-
-    .option-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--gray);
-      transition: var(--transition);
-      padding: 4px;
-      border-radius: 4px;
-    }
-
-    .option-btn:hover {
-      color: var(--primary);
-      background: rgba(67, 97, 238, 0.1);
-    }
-
-    .card-details {
-      margin-bottom: 15px;
-    }
-
-    .detail-item {
-      display: flex;
-      margin-bottom: 8px;
       font-size: 0.9rem;
     }
 
-    .detail-label {
-      font-weight: 500;
-      width: 120px;
-      color: var(--gray);
+    .preference-list tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: var(--transition);
+      cursor: pointer;
     }
 
-    .detail-value {
-      flex: 1;
+    .preference-list tbody tr:hover {
+      background-color: rgba(67, 97, 238, 0.1);
     }
 
-    .preferences-list {
-      margin-top: 10px;
+    .preference-list td {
+      padding: 15px 12px;
+      vertical-align: top;
     }
 
-    .preferences-title {
-      font-weight: 500;
-      margin-bottom: 8px;
-      color: var(--dark);
-    }
-
-    .preference-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .preference-tag {
-      background: rgba(67, 97, 238, 0.1);
+    .preference-name {
+      font-weight: 600;
       color: var(--primary);
+    }
+
+    .type-badge {
+      display: inline-block;
       padding: 4px 10px;
       border-radius: 20px;
       font-size: 0.8rem;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .price-badge {
-      font-size: 0.7rem;
-      background: rgba(114, 9, 183, 0.1);
-      color: var(--secondary);
-      padding: 2px 6px;
-      border-radius: 12px;
       font-weight: 500;
     }
 
-    .card-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 15px;
-      padding-top: 15px;
-      border-top: 1px solid var(--border);
+    .type-independent {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
     }
 
-    .card-actions {
-      display: flex;
-      gap: 10px;
+    .type-dependent {
+      background: rgba(114, 9, 183, 0.1);
+      color: var(--secondary);
+    }
+
+    .na-text {
+      color: var(--gray);
+      font-style: italic;
     }
 
     .empty-state {
       text-align: center;
       padding: 60px 20px;
       color: var(--gray);
-      grid-column: 1 / -1;
     }
 
     .empty-state p {
@@ -325,83 +253,6 @@
       font-size: 3rem;
       margin-bottom: 15px;
       color: var(--border);
-    }
-
-    .table-info {
-      margin-top: 10px;
-      font-size: 0.85rem;
-      color: var(--gray);
-    }
-
-    .dependent-table-preview {
-      margin-top: 10px;
-      overflow-x: auto;
-      max-height: 200px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-    }
-
-    .dependent-table-preview table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.75rem;
-    }
-
-    .dependent-table-preview th,
-    .dependent-table-preview td {
-      border: 1px solid var(--border);
-      padding: 6px 8px;
-      text-align: center;
-    }
-
-    .dependent-table-preview th {
-      background: rgba(67, 97, 238, 0.1);
-      font-weight: 500;
-    }
-
-    .dependent-table-preview td {
-      background: white;
-    }
-
-    .checkbox-group {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-    }
-
-    .checkbox-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-    }
-
-    .checkbox-label {
-      font-size: 0.7rem;
-      color: var(--gray);
-    }
-
-    .checkbox-indicator {
-      display: inline-block;
-      width: 14px;
-      height: 14px;
-      border: 1px solid var(--gray);
-      border-radius: 2px;
-      position: relative;
-    }
-
-    .checkbox-indicator.checked:after {
-      content: '✓';
-      position: absolute;
-      top: -2px;
-      left: 2px;
-      font-size: 10px;
-      color: var(--primary);
-    }
-
-    .ingredient-cell {
-      text-align: left;
-      font-weight: 500;
     }
 
     @media (max-width: 768px) {
@@ -418,8 +269,9 @@
         width: 100%;
       }
       
-      .preference-grid {
-        grid-template-columns: 1fr;
+      .preference-list {
+        display: block;
+        overflow-x: auto;
       }
     }
   </style>
@@ -445,118 +297,51 @@
       </a>
     </div>
     
-    <div class="preference-grid" id="preferenceGrid">
+    <div class="preference-list-container">
       {% if groups %}
-        {% for group in groups %}
-          <div class="preference-card" data-type="{{ group.group_type }}" data-name="{{ group.name|lower }}">
-            <div class="card-header">
-              <div>
-                <h3 class="card-title">{{ group.name }}</h3>
-                <span class="card-type">{{ group.group_type }}</span>
-              </div>
-            </div>
-            
-            <div class="card-details">
-              <div class="detail-item">
-                <span class="detail-label">Options:</span>
-                <span class="detail-value">{{ group.get_group_option_display }}</span>
-              </div>
-              
-              {% if group.group_type == "Independent" %}
-                <div class="detail-item">
-                  <span class="detail-label">Pricing:</span>
-                  <span class="detail-value">{{ group.get_pricing_method_display }}</span>
-                </div>
-                <div class="detail-item">
-                  <span class="detail-label">Preferences:</span>
-                  <span class="detail-value">{{ group.min_pref }}-{{ group.max_pref }}</span>
-                </div>
-                {% if group.pricing_method == "Group Pricing" %}
-                <div class="detail-item">
-                  <span class="detail-label">Group Price:</span>
-                  <span class="detail-value">${{ group.group_price }}</span>
-                </div>
-                {% endif %}
-              {% endif %}
-              
-              <div class="detail-item">
-                <span class="detail-label">Created:</span>
-                <span class="detail-value">{{ group.created_at|date:"Y-m-d" }}</span>
-              </div>
-            </div>
-            
-            {% if group.group_type == "Independent" %}
-              <div class="preferences-list">
-                <div class="preferences-title">Preferences ({{ group.preferences.count }})</div>
-                <div class="preference-tags">
-                  {% for preference in group.preferences.all|slice:":3" %}
-                    <span class="preference-tag">
-                      {{ preference.name }}
-                      <span class="price-badge">${{ preference.price }}</span>
-                    </span>
-                  {% endfor %}
-                  {% if group.preferences.count > 3 %}
-                    <span class="preference-tag">+{{ group.preferences.count|add:"-3" }} more</span>
+        <table class="preference-list" id="preferenceList">
+          <thead>
+            <tr>
+              <th>Preference Group Name</th>
+              <th>Type</th>
+              <th>Group Options</th>
+              <th>Pricing Method</th>
+              <th>Preference Min & Max</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for group in groups %}
+              <tr data-type="{{ group.group_type }}" data-name="{{ group.name|lower }}" 
+                  data-id="{{ group.id }}" onclick="handleRowClick('{{ group.id }}', '{{ group.group_type }}')">
+                <td class="preference-name">
+                  {{ group.name }}
+                </td>
+                <td>
+                  <span class="type-badge {% if group.group_type == 'Independent' %}type-independent{% else %}type-dependent{% endif %}">
+                    {{ group.group_type }}
+                  </span>
+                </td>
+                <td>
+                  {{ group.get_group_option_display }}
+                </td>
+                <td>
+                  {% if group.group_type == "Independent" %}
+                    {{ group.get_pricing_method_display }}
+                  {% else %}
+                    <span class="na-text">N/A</span>
                   {% endif %}
-                </div>
-              </div>
-            {% else %}
-              <div class="preferences-list">
-                <div class="preferences-title">Dependency Table</div>
-                <div class="dependent-table-preview">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Ingredient</th>
-                        {% for column in group.columns.all %}
-                          <th>{{ column.name }}<br><small>${{ column.price }}</small></th>
-                        {% empty %}
-                          <th>No columns</th>
-                        {% endfor %}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {% for ingredient in group.ingredients.all %}
-                        <tr>
-                          <td class="ingredient-cell">
-                            <strong>{{ ingredient.name }}</strong><br>
-                            <small>${{ ingredient.price }}</small>
-                          </td>
-                          {% for column in group.columns.all %}
-                            <td>
-                              {% with rule=ingredient.rules.all|dictsort:"column_id"|first %}
-                              <div class="checkbox-group">
-                                <div class="checkbox-item">
-                                  <span class="checkbox-indicator {% if rule.show %}checked{% endif %}"></span>
-                                  <span class="checkbox-label">s</span>
-                                </div>
-                                <div class="checkbox-item">
-                                  <span class="checkbox-indicator {% if rule.default %}checked{% endif %}"></span>
-                                  <span class="checkbox-label">d</span>
-                                </div>
-                                <div class="checkbox-item">
-                                  <span class="checkbox-indicator {% if rule.required %}checked{% endif %}"></span>
-                                  <span class="checkbox-label">r</span>
-                                </div>
-                              </div>
-                              {% endwith %}
-                            </td>
-                          {% endfor %}
-                        </tr>
-                      {% empty %}
-                        <tr>
-                          <td colspan="{% widthratio group.columns.count 1 1|add:1 %}" style="text-align: center;">
-                            No ingredients added
-                          </td>
-                        </tr>
-                      {% endfor %}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            {% endif %}
-          </div>
-        {% endfor %}
+                </td>
+                <td>
+                  {% if group.group_type == "Independent" %}
+                    {{ group.min_pref }}-{{ group.max_pref }}
+                  {% else %}
+                    <span class="na-text">N/A</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       {% else %}
         <div class="empty-state">
           <div class="empty-icon">📋</div>
@@ -571,38 +356,36 @@
   </div>
 
   <script>
-    // Search and filter functionality
     document.addEventListener('DOMContentLoaded', function() {
       const searchInput = document.getElementById('searchInput');
       const typeFilter = document.getElementById('typeFilter');
-      const preferenceCards = document.querySelectorAll('.preference-card');
+      const preferenceRows = document.querySelectorAll('#preferenceList tbody tr');
 
       function filterGroups() {
         const searchTerm = searchInput.value.toLowerCase();
         const filterValue = typeFilter.value;
 
-        preferenceCards.forEach(card => {
-          const groupName = card.getAttribute('data-name');
-          const groupType = card.getAttribute('data-type');
+        preferenceRows.forEach(row => {
+          const groupName = row.getAttribute('data-name');
+          const groupType = row.getAttribute('data-type');
           
           const matchesSearch = groupName.includes(searchTerm);
           const matchesType = filterValue === 'all' || groupType === filterValue;
           
           if (matchesSearch && matchesType) {
-            card.style.display = 'block';
+            row.style.display = '';
           } else {
-            card.style.display = 'none';
+            row.style.display = 'none';
           }
         });
 
-        // Show empty state if no cards are visible
-        const visibleCards = Array.from(preferenceCards).filter(card => card.style.display !== 'none');
+        const visibleRows = Array.from(preferenceRows).filter(row => row.style.display !== 'none');
         const emptyState = document.querySelector('.empty-state');
         
-        if (visibleCards.length === 0 && preferenceCards.length > 0) {
+        if (visibleRows.length === 0 && preferenceRows.length > 0) {
           if (!emptyState) {
-            const grid = document.getElementById('preferenceGrid');
-            grid.innerHTML = `
+            const container = document.querySelector('.preference-list-container');
+            container.innerHTML = `
               <div class="empty-state">
                 <div class="empty-icon">🔍</div>
                 <h3>No Matching Groups Found</h3>
@@ -610,7 +393,7 @@
               </div>
             `;
           }
-        } else if (emptyState && visibleCards.length > 0) {
+        } else if (emptyState && visibleRows.length > 0) {
           emptyState.remove();
         }
       }
@@ -618,6 +401,10 @@
       searchInput.addEventListener('input', filterGroups);
       typeFilter.addEventListener('change', filterGroups);
     });
+
+    function handleRowClick(groupId, groupType) {
+      window.location.href = `/groups/${groupId}/edit/`;
+    }
   </script>
 </body>
 </html>

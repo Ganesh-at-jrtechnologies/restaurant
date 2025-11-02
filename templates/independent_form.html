@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Independent Preference Group</title>
+  <style>
+    :root {
+      --primary: #4361ee;
+      --primary-dark: #3a56d4;
+      --secondary: #7209b7;
+      --success: #4cc9f0;
+      --danger: #f72585;
+      --warning: #f8961e;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --gray: #6c757d;
+      --border: #dee2e6;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --radius: 8px;
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      color: var(--dark);
+      line-height: 1.6;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: var(--primary);
+      font-weight: 600;
+      position: relative;
+      padding-bottom: 10px;
+    }
+
+    h2:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+
+    h3 {
+      color: var(--secondary);
+      margin-bottom: 15px;
+      font-weight: 500;
+    }
+
+    h4 {
+      color: var(--dark);
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+
+    label {
+      font-weight: 500;
+      display: block;
+      margin-bottom: 8px;
+      color: var(--dark);
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      width: 100%;
+      font-size: 14px;
+      transition: var(--transition);
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+    }
+
+    .form-section {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #f8fafc;
+      border-radius: var(--radius);
+      border-left: 4px solid var(--primary);
+    }
+
+    .type-toggle {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: var(--radius);
+      transition: var(--transition);
+    }
+
+    .radio-option:hover {
+      background: rgba(67, 97, 238, 0.05);
+    }
+
+    .radio-option input[type="radio"] {
+      width: auto;
+      margin: 0;
+    }
+
+    .checkbox-group {
+      margin-top: 15px;
+      display: flex;
+      gap: 25px;
+      flex-wrap: wrap;
+    }
+
+    .checkbox-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: var(--radius);
+      transition: var(--transition);
+    }
+
+    .checkbox-option:hover {
+      background: rgba(67, 97, 238, 0.05);
+    }
+
+    .checkbox-option input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+    }
+
+    .btn {
+      padding: 10px 18px;
+      background: var(--primary);
+      border: none;
+      border-radius: var(--radius);
+      color: white;
+      cursor: pointer;
+      font-weight: 500;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-secondary {
+      background: var(--secondary);
+    }
+
+    .btn-secondary:hover {
+      background: #6511a0;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+    }
+
+    .btn-danger:hover {
+      background: #e01a6f;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin-top: 15px;
+      border-radius: var(--radius);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 700px;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--border);
+      padding: 12px;
+      text-align: center;
+    }
+
+    th {
+      background: var(--primary);
+      color: white;
+      font-weight: 500;
+      position: relative;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    tbody tr:hover {
+      background: rgba(67, 97, 238, 0.05);
+    }
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .table-controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    .delete-btn {
+      background: var(--danger);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      padding: 4px 8px;
+      font-size: 12px;
+      transition: var(--transition);
+    }
+
+    .delete-btn:hover {
+      background: #e01a6f;
+      transform: scale(1.05);
+    }
+
+    .checkbox-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .checkbox-cell label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: normal;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .checkbox-cell input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+    }
+
+    .pricing-table {
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .pricing-table th {
+      background: var(--secondary);
+    }
+
+    .pricing-table input {
+      width: 80px;
+    }
+
+    .save-container {
+      text-align: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .save-btn {
+      padding: 12px 30px;
+      font-size: 16px;
+      background: var(--success);
+    }
+
+    .save-btn:hover {
+      background: #3ab0d9;
+    }
+
+    .card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    .min-max-container {
+      display: flex;
+      gap: 20px;
+    }
+
+    .min-max-container .form-section {
+      flex: 1;
+    }
+
+    .inline-form {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      align-items: flex-end;
+    }
+
+    .inline-form .form-group {
+      flex: 1;
+    }
+
+    .inline-form .form-group label {
+      margin-bottom: 5px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background-color: white;
+      padding: 25px;
+      border-radius: var(--radius);
+      width: 90%;
+      max-width: 500px;
+      box-shadow: var(--shadow);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--gray);
+    }
+
+    .close-btn:hover {
+      color: var(--dark);
+    }
+
+    .modal-footer {
+      margin-top: 20px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--gray);
+    }
+
+    .empty-state p {
+      margin-bottom: 15px;
+    }
+
+    .price {
+      font-size: 0.85em;
+      color: var(--dark);
+      margin-left: 5px;
+    }
+
+    .hidden-inputs {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px;
+      }
+
+      .type-toggle,
+      .checkbox-group {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .table-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .min-max-container {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .inline-form {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>Edit Independent Preference Group</h2>
+
+    <form id="preferenceForm" method="POST">
+      {% csrf_token %}
+      
+      <div class="card">
+        <div class="form-section">
+          <label for="name">Group Name</label>
+          <input type="text" id="name" name="name" placeholder="Enter group name" value="{{ group.name }}" required />
+        </div>
+
+        <div class="form-section">
+          <label>Group Type</label>
+          <div class="type-toggle">
+            <label class="radio-option">
+              <input type="radio" name="type" value="Independent" checked>
+              <span>Independent</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="type" value="Dependent" disabled>
+              <span>Dependent</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <label>Group Options</label>
+          <div class="type-toggle">
+            <label class="radio-option">
+              <input type="radio" name="group_option" value="optional" {% if not group.required %}checked{% endif %}>
+              <span>Optional</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="group_option" value="required" {% if group.required %}checked{% endif %}>
+              <span>Required</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="group_option" value="multiple" disabled>
+              <span>Can be selected more than once</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Independent UI -->
+      <div id="independent-section">
+        <div class="card">
+          <h3>Independent Preferences Settings</h3>
+
+          <div class="min-max-container">
+            <div class="form-section">
+              <label for="minPref">Minimum Number of Preferences</label>
+              <input type="number" id="minPref" name="minPref" value="{{ group.min_pref }}" min="1" max="10" />
+            </div>
+            <div class="form-section">
+              <label for="maxPref">Maximum Number of Preferences</label>
+              <input type="number" id="maxPref" name="maxPref" value="{{ group.max_pref }}" min="1" max="10" />
+            </div>
+          </div>
+
+          <div class="form-section">
+            <label for="pricingMethod">Pricing Method</label>
+            <select id="pricingMethod" name="pricingMethod">
+              <option value="No Charge" {% if group.pricing_method == "No Charge" %}selected{% endif %}>No Charge</option>
+              <option value="Group Pricing" {% if group.pricing_method == "Group Pricing" %}selected{% endif %}>Group Pricing</option>
+              <option value="Individual Pricing" {% if group.pricing_method == "Individual Pricing" %}selected{% endif %}>Individual Pricing</option>
+            </select>
+          </div>
+
+          <div id="pricing-container"></div>
+        </div>
+      </div>
+
+      <!-- Hidden inputs for independent preferences data -->
+      <div id="preferences-data" class="hidden-inputs">
+        <!-- Preferences will be populated here -->
+      </div>
+
+      <div class="save-container">
+        <button type="submit" class="btn save-btn">Update Preference Group</button>
+        <a href="{% url 'group_list' %}" class="btn btn-secondary" style="margin-left: 10px; text-decoration: none;">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Modal for adding preferences -->
+  <div class="modal" id="preferenceModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">Add New Preference</h3>
+        <button class="close-btn" id="closeModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="preferenceName">Preference Name</label>
+          <input type="text" id="preferenceName" placeholder="Enter preference name">
+        </div>
+        <div class="form-group" id="priceFieldContainer">
+          <label for="preferencePrice">Price ($)</label>
+          <input type="number" id="preferencePrice" min="0" step="0.01" placeholder="0.00">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="cancelModal">Cancel</button>
+        <button type="button" class="btn" id="savePreference">Add Preference</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Handle pricing UI
+    const pricingContainer = document.getElementById("pricing-container");
+    const pricingMethod = document.getElementById("pricingMethod");
+    pricingMethod.addEventListener("change", updatePricingUI);
+
+    // Load existing preferences data
+    const existingPreferences = {{ group.preferences|safe }};
+    const existingPrices = {{ group.prices|safe }};
+
+    function updatePricingUI() {
+      const method = pricingMethod.value;
+      let html = "";
+
+      if (method === "No Charge") {
+        html = `
+        <div class="form-section">
+          <h4>Pricing Method: No Charge</h4>
+          <div class="table-container">
+            <table class="pricing-table" id="noChargeTable">
+              <thead>
+                <tr>
+                  <th>Preference</th>
+                  <th>Price Type</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${renderExistingPreferences(method)}
+              </tbody>
+            </table>
+            <div class="empty-state" id="noChargeEmptyState" style="${existingPreferences.length > 0 ? 'display: none;' : ''}">
+              <p>No preferences added yet</p>
+              <p>Click "Add Preference" to get started</p>
+            </div>
+          </div>
+          <button type="button" class="btn btn-sm" style="margin-top: 10px;" id="addPreferenceBtn">+ Add Preference</button>
+        </div>`;
+      } else if (method === "Group Pricing") {
+        html = `
+        <div class="form-section">
+          <h4>Pricing Method: Group Pricing</h4>
+          <label>Group Price:</label>
+          <input type="number" name="groupPrice" value="{{ group.group_price }}" min="0" step="0.01" class="group-price-input" /> $
+          <div class="table-container">
+            <table class="pricing-table" id="groupPricingTable">
+              <thead>
+                <tr>
+                  <th>Preference</th>
+                  <th>Price Type</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${renderExistingPreferences(method)}
+              </tbody>
+            </table>
+            <div class="empty-state" id="groupPricingEmptyState" style="${existingPreferences.length > 0 ? 'display: none;' : ''}">
+              <p>No preferences added yet</p>
+              <p>Click "Add Preference" to get started</p>
+            </div>
+          </div>
+          <button type="button" class="btn btn-sm" style="margin-top: 10px;" id="addPreferenceBtn">+ Add Preference</button>
+        </div>`;
+      } else {
+        html = `
+        <div class="form-section">
+          <h4>Pricing Method: Individual Pricing</h4>
+          <div class="table-container">
+            <table class="pricing-table" id="individualPricingTable">
+              <thead>
+                <tr>
+                  <th>Preference</th>
+                  <th>Price</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${renderExistingPreferences(method)}
+              </tbody>
+            </table>
+            <div class="empty-state" id="individualPricingEmptyState" style="${existingPreferences.length > 0 ? 'display: none;' : ''}">
+              <p>No preferences added yet</p>
+              <p>Click "Add Preference" to get started</p>
+            </div>
+          </div>
+          <button type="button" class="btn btn-sm" style="margin-top: 10px;" id="addPreferenceBtn">+ Add Preference</button>
+        </div>`;
+      }
+      pricingContainer.innerHTML = html;
+      
+      // Add event listener to the new button
+      document.getElementById("addPreferenceBtn").addEventListener("click", () => {
+        openPreferenceModal();
+      });
+    }
+
+    // Render existing preferences in the table
+    function renderExistingPreferences(method) {
+      let html = '';
+      
+      existingPreferences.forEach((pref, index) => {
+        const price = existingPrices[index] || '0';
+        
+        if (method === "Individual Pricing") {
+          html += `
+          <tr>
+            <td>${pref}</td>
+            <td><input type="number" value="${price}" min="0" step="0.01" class="price-input" /> $</td>
+            <td><button type="button" class="delete-btn" onclick="deletePreferenceRow(this)">✕</button></td>
+          </tr>
+          `;
+        } else if (method === "Group Pricing") {
+          html += `
+          <tr>
+            <td>${pref}</td>
+            <td><span class="price-display">Group Pricing</span></td>
+            <td><button type="button" class="delete-btn" onclick="deletePreferenceRow(this)">✕</button></td>
+          </tr>
+          `;
+        } else { // No Charge
+          html += `
+          <tr>
+            <td>${pref}</td>
+            <td><span class="price-display">No Charge</span></td>
+            <td><button type="button" class="delete-btn" onclick="deletePreferenceRow(this)">✕</button></td>
+          </tr>
+          `;
+        }
+      });
+      
+      return html;
+    }
+
+    // Modal functionality for adding preferences
+    const preferenceModal = document.getElementById("preferenceModal");
+    const closeModalBtn = document.getElementById("closeModal");
+    const cancelModalBtn = document.getElementById("cancelModal");
+    const savePreferenceBtn = document.getElementById("savePreference");
+    const preferenceNameInput = document.getElementById("preferenceName");
+    const preferencePriceInput = document.getElementById("preferencePrice");
+    const priceFieldContainer = document.getElementById("priceFieldContainer");
+
+    function openPreferenceModal() {
+      const method = pricingMethod.value;
+      
+      // Show/hide price field based on pricing method
+      if (method === "No Charge" || method === "Group Pricing") {
+        priceFieldContainer.style.display = "none";
+      } else {
+        priceFieldContainer.style.display = "block";
+      }
+      
+      // Reset form
+      preferenceNameInput.value = "";
+      preferencePriceInput.value = "0";
+      
+      // Show modal
+      preferenceModal.style.display = "flex";
+    }
+
+    closeModalBtn.addEventListener("click", () => {
+      preferenceModal.style.display = "none";
+    });
+
+    cancelModalBtn.addEventListener("click", () => {
+      preferenceModal.style.display = "none";
+    });
+
+    savePreferenceBtn.addEventListener("click", () => {
+      const method = pricingMethod.value;
+      const name = preferenceNameInput.value.trim();
+      const price = preferencePriceInput.value;
+      
+      if (!name) {
+        alert("Please enter a preference name");
+        return;
+      }
+      
+      addPreference(name, price, method);
+      preferenceModal.style.display = "none";
+    });
+
+    // Function to add a new preference
+    function addPreference(name, price, method) {
+      let table, emptyState;
+      
+      if (method === "No Charge") {
+        table = document.getElementById("noChargeTable");
+        emptyState = document.getElementById("noChargeEmptyState");
+      } else if (method === "Group Pricing") {
+        table = document.getElementById("groupPricingTable");
+        emptyState = document.getElementById("groupPricingEmptyState");
+      } else {
+        table = document.getElementById("individualPricingTable");
+        emptyState = document.getElementById("individualPricingEmptyState");
+      }
+      
+      const tbody = table.querySelector("tbody");
+      const newRow = document.createElement("tr");
+      
+      if (method === "Individual Pricing") {
+        newRow.innerHTML = `
+          <td>${name}</td>
+          <td><input type="number" value="${price}" min="0" step="0.01" class="price-input" /> $</td>
+          <td><button type="button" class="delete-btn" onclick="deletePreferenceRow(this)">✕</button></td>
+        `;
+      } else if (method === "Group Pricing") {
+        newRow.innerHTML = `
+          <td>${name}</td>
+          <td><span class="price-display">Group Pricing</span></td>
+          <td><button type="button" class="delete-btn" onclick="deletePreferenceRow(this)">✕</button></td>
+        `;
+      } else { // No Charge
+        newRow.innerHTML = `
+          <td>${name}</td>
+          <td><span class="price-display">No Charge</span></td>
+          <td><button type="button" class="delete-btn" onclick="deletePreferenceRow(this)">✕</button></td>
+        `;
+      }
+      
+      tbody.appendChild(newRow);
+      
+      // Hide empty state if it exists
+      if (emptyState) {
+        emptyState.style.display = "none";
+      }
+    }
+    
+    // Function to delete a preference row
+    window.deletePreferenceRow = function(btn) {
+      if (confirm("Are you sure you want to delete this preference?")) {
+        btn.closest("tr").remove();
+      }
+    }
+
+    // Form submission
+    const form = document.getElementById("preferenceForm");
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Collect preferences and prices
+      const pricingMethod = document.getElementById("pricingMethod").value;
+      const preferences = [];
+      const prices = [];
+      
+      if (pricingMethod === "Individual Pricing") {
+        const table = document.getElementById("individualPricingTable");
+        const rows = table.querySelectorAll("tbody tr");
+        
+        rows.forEach(row => {
+          const cells = row.cells;
+          preferences.push(cells[0].textContent);
+          const priceInput = cells[1].querySelector("input");
+          prices.push(priceInput ? priceInput.value : "0");
+        });
+      } else if (pricingMethod === "Group Pricing") {
+        const table = document.getElementById("groupPricingTable");
+        const rows = table.querySelectorAll("tbody tr");
+        const groupPriceInput = document.querySelector('input[name="groupPrice"]');
+        const groupPrice = groupPriceInput ? groupPriceInput.value : "0";
+        
+        rows.forEach(row => {
+          const cells = row.cells;
+          preferences.push(cells[0].textContent);
+          prices.push(groupPrice);
+        });
+      } else { // No Charge
+        const table = document.getElementById("noChargeTable");
+        const rows = table.querySelectorAll("tbody tr");
+        
+        rows.forEach(row => {
+          const cells = row.cells;
+          preferences.push(cells[0].textContent);
+          prices.push("0");
+        });
+      }
+      
+      // Add hidden inputs for preferences and prices
+      preferences.forEach((pref, index) => {
+        const prefInput = document.createElement('input');
+        prefInput.type = 'hidden';
+        prefInput.name = 'preferences[]';
+        prefInput.value = pref;
+        form.appendChild(prefInput);
+        
+        const priceInput = document.createElement('input');
+        priceInput.type = 'hidden';
+        priceInput.name = 'prices[]';
+        priceInput.value = prices[index];
+        form.appendChild(priceInput);
+      });
+      
+      // Submit the form
+      form.submit();
+    });
+
+    // Initialize the form
+    updatePricingUI();
+  </script>
+</body>
+</html>

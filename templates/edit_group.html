@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create Preference Group</title>
+  <title>Edit Preference Group</title>
   <style>
     :root {
       --primary: #4361ee;
@@ -600,7 +600,7 @@
 
 <body>
   <div class="container" style="position: relative;">
-    <h2>Create Preference Group</h2>
+    <h2>Edit Preference Group</h2>
 
     <form id="preferenceForm" method="POST">
       {% csrf_token %}
@@ -608,18 +608,18 @@
       <div class="card">
         <div class="form-section">
           <label for="name">Group Name</label>
-          <input type="text" id="name" name="name" placeholder="Enter group name" required />
+          <input type="text" id="name" name="name" placeholder="Enter group name" value="{{ group.name }}" required />
         </div>
 
         <div class="form-section">
           <label>Group Type</label>
           <div class="type-toggle">
             <label class="radio-option">
-              <input type="radio" name="type" value="Independent" checked>
+              <input type="radio" name="type" value="Independent" {% if group.group_type == "Independent" %}checked{% endif %} {% if group.group_type == "Dependent" %}disabled{% endif %}>
               <span>Independent</span>
             </label>
             <label class="radio-option">
-              <input type="radio" name="type" value="Dependent">
+              <input type="radio" name="type" value="Dependent" {% if group.group_type == "Dependent" %}checked{% endif %} {% if group.group_type == "Independent" %}disabled{% endif %}>
               <span>Dependent</span>
             </label>
           </div>
@@ -629,15 +629,15 @@
           <label>Group Options</label>
           <div class="type-toggle">
             <label class="radio-option">
-              <input type="radio" name="group_option" value="optional" checked>
+              <input type="radio" name="group_option" value="optional" {% if group.group_option == "optional" %}checked{% endif %}>
               <span>Optional</span>
             </label>
             <label class="radio-option">
-              <input type="radio" name="group_option" value="required">
+              <input type="radio" name="group_option" value="required" {% if group.group_option == "required" %}checked{% endif %}>
               <span>Required</span>
             </label>
             <label class="radio-option">
-              <input type="checkbox" name="multiple_selection" value="1">
+              <input type="checkbox" name="multiple_selection" value="1" {% if group.multiple_selection_limit %}checked{% endif %}>
               <span>Can be selected more than once</span>
             </label>
           </div>
@@ -645,27 +645,27 @@
       </div>
 
       <!-- Independent UI -->
-      <div id="independent-section">
+      <div id="independent-section" {% if group.group_type == "Dependent" %} class="hidden"{% endif %}>
         <div class="card">
           <h3>Independent Preferences Settings</h3>
 
           <div class="min-max-container">
             <div class="form-section">
               <label for="minPref">Minimum Number of Preferences</label>
-              <input type="number" id="minPref" name="minPref" value="1" min="1" max="10" />
+              <input type="number" id="minPref" name="minPref" value="{{ group.min_pref }}" min="1" max="10" />
             </div>
             <div class="form-section">
               <label for="maxPref">Maximum Number of Preferences</label>
-              <input type="number" id="maxPref" name="maxPref" value="10" min="1" max="10" />
+              <input type="number" id="maxPref" name="maxPref" value="{{ group.max_pref }}" min="1" max="10" />
             </div>
           </div>
 
           <div class="form-section">
             <label for="pricingMethod">Pricing Method</label>
             <select id="pricingMethod" name="pricingMethod">
-              <option value="No Charge">No Charge</option>
-              <option value="Group Pricing">Group Pricing</option>
-              <option value="Individual Pricing">Individual Pricing</option>
+              <option value="No Charge" {% if group.pricing_method == "No Charge" %}selected{% endif %}>No Charge</option>
+              <option value="Group Pricing" {% if group.pricing_method == "Group Pricing" %}selected{% endif %}>Group Pricing</option>
+              <option value="Individual Pricing" {% if group.pricing_method == "Individual Pricing" %}selected{% endif %}>Individual Pricing</option>
             </select>
           </div>
 
@@ -674,7 +674,7 @@
       </div>
 
       <!-- Dependent UI -->
-      <div id="dependent-section" class="hidden">
+      <div id="dependent-section" {% if group.group_type == "Independent" %} class="hidden"{% endif %}>
         <div class="card">
           <div class="table-header">
             <h3>Dependent Preference Table</h3>
@@ -683,16 +683,14 @@
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                   <path d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z" />
                 </svg>
-                Add Row
+                {% if group.child_name %}{{group.child_name}} {% else %} Add Row{% endif %}
               </button>
-              <input type="text" name="rowName" placeholder="Row Name">
               <button type="button" class="btn btn-secondary" id="addColumnBtn">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                   <path d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z" />
                 </svg>
-                Add Column
+                {% if group.parent_name %}{{group.parent_name}}{% else %}Add Column{% endif %}
               </button>
-              <input type="text" name="columnName" placeholder="Column Name">
             </div>
           </div>
 
@@ -702,14 +700,59 @@
                     <tr>
                         <th style="width: 50px;">Order</th>
                         <th>Ingredient</th>
-                        <!-- Columns will be added dynamically -->
+                        {% for column in columns %}
+                        <th class="column-header" data-column-name="{{ column.name }}" data-column-price="{{ column.price }}">
+                            <span class="name-display editable" data-field="column-name">{{ column.name }}</span>
+                            <span class="price-display editable" data-field="column-price">{{ column.price }}$</span>
+                            <button type="button" class="delete-btn" onclick="deleteColumn({{ forloop.counter0 }})">✕</button>
+                        </th>
+                        {% endfor %}
                     </tr>
                 </thead>
-                <tbody id="dependentTableBody">
-                    <!-- Rows will be added dynamically -->
+                <tbody id="dependentTableBody">  
+                    {% for ingredient_data in rules_matrix %}
+                    <tr class="draggable">
+                        <td class="drag-handle">⋮⋮</td>
+                        <td class="ingredient-cell" data-ingredient-name="{{ ingredient_data.ingredient_name }}" data-ingredient-price="{{ ingredient_data.ingredient_price }}">
+                            <span class="name-display editable" data-field="ingredient-name">{{ ingredient_data.ingredient_name }}</span>
+                            <span class="price-display editable" data-field="ingredient-price">{{ ingredient_data.ingredient_price }}$</span>
+                            <button type="button" class="delete-btn" onclick="deleteRow(this)">✕</button>
+                        </td>
+                        {% for rule in ingredient_data.rules %}
+                        <td>
+                            <div class="checkbox-cell">
+                                <label>
+                                    <input type="checkbox" 
+                                          class="rule-checkbox" 
+                                          data-type="show"
+                                          data-column="{{ forloop.counter0 }}"
+                                          {% if rule.show %}checked{% endif %}>
+                                    Show
+                                </label>
+                                <label>
+                                    <input type="checkbox" 
+                                          class="rule-checkbox" 
+                                          data-type="default"
+                                          data-column="{{ forloop.counter0 }}"
+                                          {% if rule.default %}checked{% endif %}>
+                                    Default
+                                </label>
+                                <label>
+                                    <input type="checkbox" 
+                                          class="rule-checkbox" 
+                                          data-type="required"
+                                          data-column="{{ forloop.counter0 }}"
+                                          {% if rule.required %}checked{% endif %}>
+                                    Required
+                                </label>
+                            </div>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
-            <div class="empty-state" id="dependentEmptyState">
+            <div class="empty-state" id="dependentEmptyState" style="display: none;">
               <p>No preferences added yet</p>
               <p>Start by adding rows and columns to build your preference table</p>
             </div>
@@ -718,7 +761,7 @@
       </div>
 
       <div class="save-container">
-        <button type="submit" class="btn save-btn">Create Preference Group</button>
+        <button type="submit" class="btn save-btn">Update Preference Group</button>
       </div>
     </form>
   </div>
@@ -804,9 +847,17 @@
                 </tr>
               </thead>
               <tbody>
+                {% for preference in preferences %}
+                <tr class="draggable">
+                  <td class="drag-handle">⋮⋮</td>
+                  <td class="editable" data-field="name">${escapeHtml("{{ preference.name }}")}</td>
+                  <td><span class="price-display">No Charge</span></td>
+                  <td><button type="button" class="delete-btn" onclick="deletePreferenceRow(this)">✕</button></td>
+                </tr>
+                {% endfor %}
               </tbody>
             </table>
-            <div class="empty-state" id="noChargeEmptyState">
+            <div class="empty-state" id="noChargeEmptyState" style="display: none;">
               <p>No preferences added yet</p>
               <p>Click "Add Preference" to get started</p>
             </div>
@@ -818,7 +869,7 @@
         <div class="form-section">
           <h4>Pricing Method: Group Pricing</h4>
           <label>Group Price:</label>
-          <input type="number" name="groupPrice" value="0" min="0" step="0.01" class="group-price-input" /> $
+          <input type="number" name="groupPrice" value="{{group.group_price}}" min="0" step="0.01" class="group-price-input" /> $
           <div class="table-container">
             <table class="pricing-table" id="groupPricingTable">
               <thead>
@@ -830,9 +881,17 @@
                 </tr>
               </thead>
               <tbody>
+                {% for preference in preferences %}
+                <tr class="draggable">
+                  <td class="drag-handle">⋮⋮</td>
+                  <td class="editable" data-field="name">${escapeHtml("{{ preference.name }}")}</td>
+                  <td><span class="price-display">Group Pricing</span></td>
+                  <td><button type="button" class="delete-btn" onclick="deletePreferenceRow(this)">✕</button></td>
+                </tr>
+                {% endfor %}
               </tbody>
             </table>
-            <div class="empty-state" id="groupPricingEmptyState">
+            <div class="empty-state" id="groupPricingEmptyState" style="display: none;">
               <p>No preferences added yet</p>
               <p>Click "Add Preference" to get started</p>
             </div>
@@ -854,9 +913,17 @@
                 </tr>
               </thead>
               <tbody>
+                {% for preference in preferences %}
+                <tr class="draggable">
+                  <td class="drag-handle">⋮⋮</td>
+                  <td class="editable" data-field="name">${escapeHtml("{{ preference.name }}")}</td>
+                  <td class="editable" data-field="price"><input type="number" value="{{preference.price}}" min="0" step="0.01" class="price-input hidden"> <span class="price-display">{{preference.price}}$</span></td>
+                  <td><button type="button" class="delete-btn" onclick="deletePreferenceRow(this)">✕</button></td>
+                </tr>
+                {% endfor %}
               </tbody>
             </table>
-            <div class="empty-state" id="individualPricingEmptyState">
+            <div class="empty-state" id="individualPricingEmptyState" style="display: none;">
               <p>No preferences added yet</p>
               <p>Click "Add Preference" to get started</p>
             </div>
@@ -873,6 +940,12 @@
           addPreferenceInline();
         });
       }
+
+      // Add double-click editing to existing preference rows
+      const preferenceRows = document.querySelectorAll('#pricing-container .draggable');
+      preferenceRows.forEach(row => {
+        addDoubleClickEditing(row);
+      });
 
       // Reinitialize sortable for the new tables
       setTimeout(initializeIndependentSortable, 100);
@@ -1090,6 +1163,92 @@
     const addRowBtn = document.getElementById("addRowBtn");
     const addColumnBtn = document.getElementById("addColumnBtn");
 
+    // Add separate click editing for ingredient and column headers
+    function addSeparateClickEditing(element) {
+      const editableElements = element.querySelectorAll('.editable');
+      editableElements.forEach(el => {
+        el.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const field = this.getAttribute('data-field');
+          const currentValue = this.textContent.replace('$', '').trim();
+          
+          // Create input field
+          let input;
+          if (field.includes('price')) {
+            input = document.createElement('input');
+            input.type = 'number';
+            input.className = 'inline-input';
+            input.value = currentValue;
+            input.min = "0";
+            input.step = "0.01";
+            input.style.width = '60px';
+          } else {
+            input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'inline-input';
+            input.value = currentValue;
+            input.style.width = '120px';
+          }
+          
+          // Replace element content with input
+          this.innerHTML = '';
+          this.appendChild(input);
+          this.classList.add('editing');
+          input.focus();
+          
+          // Save on Enter key or blur
+          input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+              saveSeparateEdit(el, field, input.value);
+            } else if (e.key === 'Escape') {
+              cancelSeparateEdit(el, field, currentValue);
+            }
+          });
+          
+          input.addEventListener('blur', function() {
+            saveSeparateEdit(el, field, input.value);
+          });
+        });
+      });
+    }
+    
+    function saveSeparateEdit(element, field, value) {
+      // Trim leading zeros for numeric fields
+      if (field.includes('price')) {
+        value = parseFloat(value).toString();
+      }
+      
+      if (field.includes('price')) {
+        element.innerHTML = `${value}$`;
+      } else {
+        element.textContent = value;
+      }
+      element.classList.remove('editing');
+      
+      // Update data attributes
+      const parent = element.closest('td, th');
+      if (parent) {
+        if (field === 'ingredient-name') {
+          parent.setAttribute('data-ingredient-name', value);
+        } else if (field === 'ingredient-price') {
+          parent.setAttribute('data-ingredient-price', value);
+        } else if (field === 'column-name') {
+          parent.setAttribute('data-column-name', value);
+        } else if (field === 'column-price') {
+          parent.setAttribute('data-column-price', value);
+        }
+      }
+    }
+    
+    function cancelSeparateEdit(element, field, originalValue) {
+      if (field.includes('price')) {
+        element.innerHTML = `${originalValue}$`;
+      } else {
+        element.textContent = originalValue;
+      }
+      element.classList.remove('editing');
+    }
+
     // Add Row
     addRowBtn.addEventListener("click", () => {
       addRowInline();
@@ -1296,92 +1455,6 @@
           dependentEmptyState.style.display = "block";
         }
       });
-    }
-
-    // Add separate click editing for ingredient and column headers
-    function addSeparateClickEditing(element) {
-      const editableElements = element.querySelectorAll('.editable');
-      editableElements.forEach(el => {
-        el.addEventListener('click', function(e) {
-          e.stopPropagation();
-          const field = this.getAttribute('data-field');
-          const currentValue = this.textContent.replace('$', '').trim();
-          
-          // Create input field
-          let input;
-          if (field.includes('price')) {
-            input = document.createElement('input');
-            input.type = 'number';
-            input.className = 'inline-input';
-            input.value = currentValue;
-            input.min = "0";
-            input.step = "0.01";
-            input.style.width = '60px';
-          } else {
-            input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'inline-input';
-            input.value = currentValue;
-            input.style.width = '120px';
-          }
-          
-          // Replace element content with input
-          this.innerHTML = '';
-          this.appendChild(input);
-          this.classList.add('editing');
-          input.focus();
-          
-          // Save on Enter key or blur
-          input.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-              saveSeparateEdit(el, field, input.value);
-            } else if (e.key === 'Escape') {
-              cancelSeparateEdit(el, field, currentValue);
-            }
-          });
-          
-          input.addEventListener('blur', function() {
-            saveSeparateEdit(el, field, input.value);
-          });
-        });
-      });
-    }
-    
-    function saveSeparateEdit(element, field, value) {
-      // Trim leading zeros for numeric fields
-      if (field.includes('price')) {
-        value = parseFloat(value).toString();
-      }
-      
-      if (field.includes('price')) {
-        element.innerHTML = `${value}$`;
-      } else {
-        element.textContent = value;
-      }
-      element.classList.remove('editing');
-      
-      // Update data attributes
-      const parent = element.closest('td, th');
-      if (parent) {
-        if (field === 'ingredient-name') {
-          parent.setAttribute('data-ingredient-name', value);
-        } else if (field === 'ingredient-price') {
-          parent.setAttribute('data-ingredient-price', value);
-        } else if (field === 'column-name') {
-          parent.setAttribute('data-column-name', value);
-        } else if (field === 'column-price') {
-          parent.setAttribute('data-column-price', value);
-        }
-      }
-    }
-    
-    function cancelSeparateEdit(element, field, originalValue) {
-      if (field.includes('price')) {
-        element.innerHTML = `${originalValue}$`;
-      } else {
-        element.textContent = originalValue;
-      }
-      element.classList.remove('editing');
     }
 
     // Collect all rules from the dependent table
@@ -1615,11 +1688,23 @@
       // Let the form submit normally
     });
 
-    // Initialize sortable on page load
+    // Initialize sortable on page load and add click editing to existing elements
     document.addEventListener('DOMContentLoaded', function() {
       initializeSortable();
       updatePricingUI();
       addAutoTrimZeros();
+      
+      // Add click editing to existing ingredient cells
+      const ingredientCells = document.querySelectorAll('.ingredient-cell');
+      ingredientCells.forEach(cell => {
+        addSeparateClickEditing(cell);
+      });
+      
+      // Add click editing to existing column headers
+      const columnHeaders = document.querySelectorAll('.column-header');
+      columnHeaders.forEach(header => {
+        addSeparateClickEditing(header);
+      });
     });
 </script>
 </body>
