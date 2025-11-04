@@ -1129,6 +1129,7 @@
           <label><input type="checkbox" class="rule-checkbox" data-type="show" data-column="${colIndex}"> Show</label>
           <label><input type="checkbox" class="rule-checkbox" data-type="default" data-column="${colIndex}"> Default</label>
           <label><input type="checkbox" class="rule-checkbox" data-type="required" data-column="${colIndex}"> Required</label>
+          <label><input type="checkbox" class="rule-checkbox" data-type="allow_more" data-column="${colIndex}"> Allow More</label>
         </div>
       `;
         newRow.appendChild(cell);
@@ -1231,6 +1232,7 @@
             <label><input type="checkbox" class="rule-checkbox" data-type="show" data-column="${colIndex}"> Show</label>
             <label><input type="checkbox" class="rule-checkbox" data-type="default" data-column="${colIndex}"> Default</label>
             <label><input type="checkbox" class="rule-checkbox" data-type="required" data-column="${colIndex}"> Required</label>
+            <label><input type="checkbox" class="rule-checkbox" data-type="allow_more" data-column="${colIndex}"> Allow More</label>
           </div>
         `;
           row.appendChild(cell);
@@ -1241,6 +1243,7 @@
             <label><input type="checkbox" class="rule-checkbox" data-type="show" data-column="${colIndex}"> Show</label>
             <label><input type="checkbox" class="rule-checkbox" data-type="default" data-column="${colIndex}"> Default</label>
             <label><input type="checkbox" class="rule-checkbox" data-type="required" data-column="${colIndex}"> Required</label>
+            <label><input type="checkbox" class="rule-checkbox" data-type="allow_more" data-column="${colIndex}"> Allow More</label>
           </div>
         `;
           row.appendChild(cell);
@@ -1398,13 +1401,15 @@
           const showCheckbox = cell.querySelector('input[data-type="show"]');
           const defaultCheckbox = cell.querySelector('input[data-type="default"]');
           const requiredCheckbox = cell.querySelector('input[data-type="required"]');
+          const allowMoreCheckbox = cell.querySelector('input[data-type="allow_more"]');
           
           rules.push({
             ingredient_index: ingredientIndex,
             column_index: columnIndex,
             show: showCheckbox ? showCheckbox.checked : false,
             default: defaultCheckbox ? defaultCheckbox.checked : false,
-            required: requiredCheckbox ? requiredCheckbox.checked : false
+            required: requiredCheckbox ? requiredCheckbox.checked : false,
+            allow_more: allowMoreCheckbox ? allowMoreCheckbox.checked : false
           });
         }
       });

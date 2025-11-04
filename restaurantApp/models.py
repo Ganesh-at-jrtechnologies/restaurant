@@ -86,6 +86,7 @@ class DependentRule(models.Model):
     column = models.ForeignKey(DependentColumn, on_delete=models.CASCADE, related_name="rules")
     show = models.BooleanField(default=False)
     default = models.BooleanField(default=False)
+    allow_more = models.BooleanField(default=False)
     required = models.BooleanField(default=False)
 
     class Meta:

@@ -157,6 +157,7 @@ def preference_group_create(request):
                             show = rule.get("show", False)
                             default = rule.get("default", False)
                             required = rule.get("required", False)
+                            allow_more = rule.get("allow_more", False)
 
                             if (ing_idx is not None and col_idx is not None and 
                                 0 <= ing_idx < len(ing_objs) and 0 <= col_idx < len(col_objs)):
@@ -167,6 +168,7 @@ def preference_group_create(request):
                                     show=bool(show),
                                     default=bool(default),
                                     required=bool(required),
+                                    allow_more=bool(allow_more),
                                 )
                         
                         # If no rules were created, create default rules
@@ -179,6 +181,7 @@ def preference_group_create(request):
                                         show=False,
                                         default=False,
                                         required=False,
+                                        allow_more=False,
                                     )
                     
                     except json.JSONDecodeError:
@@ -190,6 +193,7 @@ def preference_group_create(request):
                                     show=False,
                                     default=False,
                                     required=False,
+                                    allow_more=False,
                                 )
                 else:
                     for ing_obj in ing_objs:
@@ -200,6 +204,7 @@ def preference_group_create(request):
                                 show=False,
                                 default=False,
                                 required=False,
+                                allow_more=False,
                             )
 
         messages.success(request, f"Preference group '{name}' created successfully!")
@@ -248,6 +253,7 @@ def preference_group_edit(request, group_id):
                     'show': rule.show if rule else False,
                     'default': rule.default if rule else False,
                     'required': rule.required if rule else False,
+                    'allow_more': rule.allow_more if rule else False,
                 })
             rules_matrix.append(ingredient_data)
         
@@ -397,8 +403,9 @@ def preference_group_edit(request, group_id):
                             show = rule.get("show", False)
                             default = rule.get("default", False)
                             required = rule.get("required", False)
+                            allow_more = rule.get("allow_more", False)
 
-                            print(f"Processing rule: ing_idx={ing_idx}, col_idx={col_idx}, show={show}, default={default}, required={required}")
+                            print(f"Processing rule: ing_idx={ing_idx}, col_idx={col_idx}, show={show}, default={default}, required={required}, allow_more={allow_more}")
 
                             if (ing_idx is not None and col_idx is not None and 
                                 0 <= ing_idx < len(ing_objs) and 0 <= col_idx < len(col_objs)):
@@ -409,6 +416,7 @@ def preference_group_edit(request, group_id):
                                     show=bool(show),
                                     default=bool(default),
                                     required=bool(required),
+                                    allow_more=bool(allow_more)
                                 )
                         
                         # If no rules were created, create default rules
@@ -421,6 +429,7 @@ def preference_group_edit(request, group_id):
                                         show=False,
                                         default=False,
                                         required=False,
+                                        allow_more=False,
                                     )
                     
                     except json.JSONDecodeError as e:
@@ -433,6 +442,7 @@ def preference_group_edit(request, group_id):
                                     show=False,
                                     default=False,
                                     required=False,
+                                    allow_more=False,
                                 )
                 else:
                     print("No rules JSON provided, creating default rules")
@@ -444,6 +454,7 @@ def preference_group_edit(request, group_id):
                                 show=False,
                                 default=False,
                                 required=False,
+                                allow_more=False,
                             )
 
         messages.success(request, f"Preference group '{name}' updated successfully!")
