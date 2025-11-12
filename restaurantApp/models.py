@@ -9,6 +9,7 @@ class PreferenceGroup(models.Model):
         ("optional", "Optional"),
         ("required", "Required"),
         ("multiple", "Can be selected more than once"),
+        ("N/A", "N/A"),
     ]
     PRICING_CHOICES = [
         ("No Charge", "No Charge"),

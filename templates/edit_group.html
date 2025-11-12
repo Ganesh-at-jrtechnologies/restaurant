@@ -699,7 +699,7 @@
                 <thead>
                     <tr>
                         <th style="width: 50px;">Order</th>
-                        <th>Ingredient</th>
+                        {% comment %} <th>Ingredient</th> {% endcomment %}
                         {% for column in columns %}
                         <th class="column-header" data-column-name="{{ column.name }}" data-column-price="{{ column.price }}">
                             <span class="name-display editable" data-field="column-name">{{ column.name }}</span>

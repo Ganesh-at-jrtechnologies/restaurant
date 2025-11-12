@@ -32,7 +32,8 @@ def preference_group_create(request):
 
     name = request.POST.get("name")
     group_type = request.POST.get("type")
-    group_option = request.POST.get("group_option")
+    group_option = "N/A" if request.POST.get("type").strip() == "Dependent" else request.POST.get("group_option", "").strip()
+    print(f"Group option: {group_option}++++++++++++++")
     multiple_selection = request.POST.get("multiple_selection")
     pricing_method = request.POST.get("pricingMethod")
     min_pref = request.POST.get("minPref") or 1
@@ -40,7 +41,7 @@ def preference_group_create(request):
     group_price = request.POST.get("groupPrice") or 0
     row_name = request.POST.get("rowName") or ""
     column_name = request.POST.get("columnName") or ""
-    print(row_name, column_name, "++++++++++++++")
+
 
     if not name:
         messages.error(request, "Group name is required")
@@ -458,7 +459,7 @@ def preference_group_edit(request, group_id):
                             )
 
         messages.success(request, f"Preference group '{name}' updated successfully!")
-        return redirect("group_list")
+        return redirect("group_edit")
 
     except Exception as e:
         messages.error(request, f"Error updating preference group: {str(e)}")

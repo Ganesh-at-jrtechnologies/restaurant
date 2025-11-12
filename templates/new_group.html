@@ -45,10 +45,9 @@
       margin: 0 auto;
       box-shadow: var(--shadow);
       transition: var(--transition);
-      padding-bottom: 100px; /* Space for fixed button */
+      padding-bottom: 100px;
     }
 
-    /* Add drag and drop styles */
     .draggable {
       cursor: grab;
       transition: all 0.2s ease;
@@ -212,17 +211,25 @@
       gap: 6px;
     }
 
-    .btn:hover {
+    .btn:hover:not(:disabled) {
       background: var(--primary-dark);
       transform: translateY(-2px);
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn:disabled {
+      background: var(--gray);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+      opacity: 0.6;
     }
 
     .btn-secondary {
       background: var(--secondary);
     }
 
-    .btn-secondary:hover {
+    .btn-secondary:hover:not(:disabled) {
       background: #6511a0;
     }
 
@@ -230,7 +237,7 @@
       background: var(--danger);
     }
 
-    .btn-danger:hover {
+    .btn-danger:hover:not(:disabled) {
       background: #e01a6f;
     }
 
@@ -290,6 +297,7 @@
     .table-controls {
       display: flex;
       gap: 10px;
+      align-items: center;
     }
 
     .delete-btn {
@@ -363,8 +371,12 @@
       background: var(--success);
     }
 
-    .save-btn:hover {
+    .save-btn:hover:not(:disabled) {
       background: #3ab0d9;
+    }
+
+    .save-btn:disabled {
+      background: var(--gray);
     }
 
     .card {
@@ -419,7 +431,6 @@
       display: none;
     }
 
-    /* New styles for inline editing */
     .editable {
       cursor: pointer;
       position: relative;
@@ -464,24 +475,8 @@
       background: var(--success);
     }
 
-    .btn-success:hover {
+    .btn-success:hover:not(:disabled) {
       background: #3ab0d9;
-    }
-
-    /* New styles for dependent table editing */
-    .ingredient-display {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
-    .ingredient-name {
-      font-weight: 500;
-    }
-
-    .ingredient-price {
-      font-size: 0.85em;
-      color: #ffd700;
     }
 
     .column-header-content {
@@ -501,35 +496,6 @@
 
     .table-controls input {
       width: 150px;
-      margin-right: 10px;
-    }
-
-    /* New styles for separate inline editing */
-    .ingredient-cell {
-      position: relative;
-    }
-
-    .ingredient-cell .name-display,
-    .ingredient-cell .price-display {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 4px;
-      transition: background-color 0.2s;
-    }
-
-    .ingredient-cell .name-display:hover,
-    .ingredient-cell .price-display:hover {
-      background-color: rgba(67, 97, 238, 0.1);
-    }
-
-    .ingredient-cell .name-display {
-      margin-right: 10px;
-      font-weight: 500;
-    }
-
-    .ingredient-cell .price-display {
-      color: #ffd700;
-      font-size: 0.9em;
     }
 
     .column-header {
@@ -557,6 +523,22 @@
     .column-header .price-display {
       color: #ffd700;
       font-size: 0.9em;
+    }
+
+    .row-name-cell {
+      position: relative;
+    }
+
+    .row-name-cell .name-display {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+      font-weight: 500;
+    }
+
+    .row-name-cell .name-display:hover {
+      background-color: rgba(67, 97, 238, 0.1);
     }
 
     @media (max-width: 768px) {
@@ -599,10 +581,10 @@
 </head>
 
 <body>
-  <div class="container" style="position: relative;">
+  <div class="container">
     <h2>Create Preference Group</h2>
 
-    <form id="preferenceForm" method="POST">
+    <form id="preferenceForm" method="POST" action="">
       {% csrf_token %}
       
       <div class="card">
@@ -622,10 +604,18 @@
               <input type="radio" name="type" value="Dependent">
               <span>Dependent</span>
             </label>
+            <label class="radio-option" id="parent">
+              <span>Parent</span>
+              <input type="text" id="columnNameInput" placeholder="Button Text for Add Column">
+            </label>
+            <label class="radio-option"  id ="child">
+              <span>Child</span>
+              <input type="text" id="rowNameInput" placeholder="Button Text for Add Row">
+            </label>
           </div>
         </div>
 
-        <div class="form-section">
+        <div class="form-section" id="group-options-section">
           <label>Group Options</label>
           <div class="type-toggle">
             <label class="radio-option">
@@ -670,6 +660,9 @@
           </div>
 
           <div id="pricing-container"></div>
+          
+          <!-- Hidden fields to store independent preferences data -->
+          <div id="independent-data" class="hidden-inputs"></div>
         </div>
       </div>
 
@@ -679,20 +672,12 @@
           <div class="table-header">
             <h3>Dependent Preference Table</h3>
             <div class="table-controls">
-              <button type="button" class="btn btn-secondary" id="addRowBtn">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                  <path d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z" />
-                </svg>
+              <button type="button" class="btn btn-secondary" id="addRowBtn" disabled>
                 Add Row
               </button>
-              <input type="text" name="rowName" placeholder="Row Name">
               <button type="button" class="btn btn-secondary" id="addColumnBtn">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                  <path d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z" />
-                </svg>
                 Add Column
               </button>
-              <input type="text" name="columnName" placeholder="Column Name">
             </div>
           </div>
 
@@ -701,8 +686,7 @@
                 <thead>
                     <tr>
                         <th style="width: 50px;">Order</th>
-                        <th>Ingredient</th>
-                        <!-- Columns will be added dynamically -->
+                        <!-- Row names and columns will be added dynamically -->
                     </tr>
                 </thead>
                 <tbody id="dependentTableBody">
@@ -711,20 +695,28 @@
             </table>
             <div class="empty-state" id="dependentEmptyState">
               <p>No preferences added yet</p>
-              <p>Start by adding rows and columns to build your preference table</p>
+              <p>Start by adding columns to build your preference table</p>
             </div>
           </div>
+          
+          <!-- Hidden fields to store dependent table data -->
+          <div id="dependent-data" class="hidden-inputs"></div>
         </div>
       </div>
 
       <div class="save-container">
-        <button type="submit" class="btn save-btn">Create Preference Group</button>
+        <button type="submit" class="btn save-btn" id="submitBtn" disabled>Create Preference Group</button>
       </div>
     </form>
   </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 <script>
+    // Global variables
+    let preferenceCounter = 0;
+    let rowCounter = 1;
+    let columnCounter = 1;
+    
     // Initialize Sortable for dependent table
     function initializeSortable() {
         const dependentTableBody = document.getElementById('dependentTableBody');
@@ -733,11 +725,15 @@
                 handle: '.drag-handle',
                 ghostClass: 'sortable-ghost',
                 chosenClass: 'dragging',
-                animation: 150
+                animation: 150,
+                onEnd: function() {
+                    if (document.querySelector('input[name="type"]:checked').value === "Dependent") {
+                        prepareDependentData();
+                    }
+                }
             });
         }
 
-        // Initialize sortable for independent pricing tables
         initializeIndependentSortable();
     }
 
@@ -756,7 +752,12 @@
                     handle: '.drag-handle',
                     ghostClass: 'sortable-ghost',
                     chosenClass: 'dragging',
-                    animation: 150
+                    animation: 150,
+                    onEnd: function() {
+                        if (document.querySelector('input[name="type"]:checked').value === "Independent") {
+                            prepareIndependentData();
+                        }
+                    }
                 });
             }
         });
@@ -765,18 +766,29 @@
     // Toggle Independent/Dependent Sections
     const independentSection = document.getElementById("independent-section");
     const dependentSection = document.getElementById("dependent-section");
+    const groupOptionsSection = document.getElementById("group-options-section");
+    const parent = document.getElementById("parent");
+    const child = document.getElementById("child");
     const dependentEmptyState = document.getElementById("dependentEmptyState");
     const form = document.getElementById("preferenceForm");
+    const submitBtn = document.getElementById("submitBtn");
     
     document.querySelectorAll("input[name='type']").forEach(radio => {
       radio.addEventListener("change", e => {
         if (e.target.value === "Independent") {
           independentSection.classList.remove("hidden");
           dependentSection.classList.add("hidden");
+          groupOptionsSection.classList.remove("hidden");
+          parent.classList.add("hidden");
+          child.classList.add("hidden");
         } else {
           dependentSection.classList.remove("hidden");
           independentSection.classList.add("hidden");
+          groupOptionsSection.classList.add("hidden");
+          parent.classList.remove("hidden");
+          child.classList.remove("hidden");
         }
+        validateForm();
       });
     });
 
@@ -869,13 +881,11 @@
       // Add event listener to the new button
       const addBtn = document.getElementById("addPreferenceBtn");
       if (addBtn) {
-        addBtn.addEventListener("click", () => {
-          addPreferenceInline();
-        });
+        addBtn.addEventListener("click", addPreferenceInline);
       }
 
-      // Reinitialize sortable for the new tables
       setTimeout(initializeIndependentSortable, 100);
+      validateForm();
     }
 
     // Utility function to escape HTML
@@ -885,7 +895,7 @@
         return div.innerHTML;
     }
 
-    // Function to add a new preference (inline)
+    // Function to add a new preference with auto-save
     function addPreferenceInline() {
       const method = pricingMethod.value;
       let table, emptyState;
@@ -902,103 +912,132 @@
       }
       
       const tbody = table.querySelector("tbody");
+      
       const newRow = document.createElement("tr");
       newRow.className = "new-row-form";
       
       if (method === "Individual Pricing") {
         newRow.innerHTML = `
           <td class="drag-handle">⋮⋮</td>
-          <td><input type="text" class="inline-input preference-name" placeholder="Preference name"></td>
+          <td><input type="text" class="inline-input preference-name" placeholder="Enter preference name"></td>
           <td><input type="number" class="inline-input preference-price" value="0" min="0" step="0.01"> $</td>
-          <td class="form-actions">
-            <button type="button" class="btn btn-success btn-sm save-preference">Save</button>
-            <button type="button" class="btn btn-danger btn-sm cancel-preference">Cancel</button>
-          </td>
+          <td><button type="button" class="delete-btn" onclick="deletePreferenceRow(this)">✕</button></td>
         `;
       } else if (method === "Group Pricing") {
         newRow.innerHTML = `
           <td class="drag-handle">⋮⋮</td>
-          <td><input type="text" class="inline-input preference-name" placeholder="Preference name"></td>
+          <td><input type="text" class="inline-input preference-name" placeholder="Enter preference name"></td>
           <td><span class="price-display">Group Pricing</span></td>
-          <td class="form-actions">
-            <button type="button" class="btn btn-success btn-sm save-preference">Save</button>
-            <button type="button" class="btn btn-danger btn-sm cancel-preference">Cancel</button>
-          </td>
+          <td><button type="button" class="delete-btn" onclick="deletePreferenceRow(this)">✕</button></td>
         `;
       } else { // No Charge
         newRow.innerHTML = `
           <td class="drag-handle">⋮⋮</td>
-          <td><input type="text" class="inline-input preference-name" placeholder="Preference name"></td>
+          <td><input type="text" class="inline-input preference-name" placeholder="Enter preference name"></td>
           <td><span class="price-display">No Charge</span></td>
-          <td class="form-actions">
-            <button type="button" class="btn btn-success btn-sm save-preference">Save</button>
-            <button type="button" class="btn btn-danger btn-sm cancel-preference">Cancel</button>
-          </td>
+          <td><button type="button" class="delete-btn" onclick="deletePreferenceRow(this)">✕</button></td>
         `;
       }
       
       tbody.appendChild(newRow);
       
-      // Add event listeners to the new row buttons
-      const saveBtn = newRow.querySelector('.save-preference');
-      const cancelBtn = newRow.querySelector('.cancel-preference');
+      // Auto-save functionality
+      const nameInput = newRow.querySelector('.preference-name');
+      const priceInput = newRow.querySelector('.preference-price');
       
-      saveBtn.addEventListener('click', function() {
-        const nameInput = newRow.querySelector('.preference-name');
-        const name = nameInput.value.trim();
-        
-        if (!name) {
-          alert("Please enter a preference name");
-          return;
-        }
-        
-        // Convert the row to a regular row
-        newRow.className = "draggable";
-        
-        if (method === "Individual Pricing") {
-          const priceInput = newRow.querySelector('.preference-price');
-          const price = priceInput.value;
-          newRow.innerHTML = `
-            <td class="drag-handle">⋮⋮</td>
-            <td class="editable" data-field="name">${escapeHtml(name)}</td>
-            <td class="editable" data-field="price"><input type="number" value="${price}" min="0" step="0.01" class="price-input hidden"> <span class="price-display">${price}$</span></td>
-            <td><button type="button" class="delete-btn" onclick="deletePreferenceRow(this)">✕</button></td>
-          `;
-        } else if (method === "Group Pricing") {
-          newRow.innerHTML = `
-            <td class="drag-handle">⋮⋮</td>
-            <td class="editable" data-field="name">${escapeHtml(name)}</td>
-            <td><span class="price-display">Group Pricing</span></td>
-            <td><button type="button" class="delete-btn" onclick="deletePreferenceRow(this)">✕</button></td>
-          `;
-        } else { // No Charge
-          newRow.innerHTML = `
-            <td class="drag-handle">⋮⋮</td>
-            <td class="editable" data-field="name">${escapeHtml(name)}</td>
-            <td><span class="price-display">No Charge</span></td>
-            <td><button type="button" class="delete-btn" onclick="deletePreferenceRow(this)">✕</button></td>
-          `;
-        }
-        
-        // Add double-click event to the new cells
-        addDoubleClickEditing(newRow);
-        
-        // Hide empty state if it exists
-        if (emptyState) {
-          emptyState.style.display = "none";
+      // Auto-save when user leaves the input field (blur event)
+      nameInput.addEventListener('blur', function() {
+        savePreferenceRow(newRow);
+      });
+      
+      // Auto-save when user presses Enter in name field
+      nameInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          savePreferenceRow(newRow);
         }
       });
       
-      cancelBtn.addEventListener('click', function() {
-        newRow.remove();
+      // Auto-save price changes for individual pricing
+      if (priceInput) {
+        priceInput.addEventListener('blur', function() {
+          savePreferenceRow(newRow);
+        });
         
-        // Show empty state if no rows left
-        if (tbody.children.length === 0 && emptyState) {
-          emptyState.style.display = "block";
-        }
-      });
+        priceInput.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') {
+            savePreferenceRow(newRow);
+          }
+        });
+      }
+      
+      // Focus the name input for immediate editing
+      nameInput.focus();
       
       initializeIndependentSortable();
+    }
+
+    // Function to save preference row (convert from input mode to display mode)
+    function savePreferenceRow(row) {
+      const method = pricingMethod.value;
+      let table, emptyState;
+      
+      if (method === "No Charge") {
+        table = document.getElementById("noChargeTable");
+        emptyState = document.getElementById("noChargeEmptyState");
+      } else if (method === "Group Pricing") {
+        table = document.getElementById("groupPricingTable");
+        emptyState = document.getElementById("groupPricingEmptyState");
+      } else {
+        table = document.getElementById("individualPricingTable");
+        emptyState = document.getElementById("individualPricingEmptyState");
+      }
+      
+      const nameInput = row.querySelector('.preference-name');
+      const priceInput = row.querySelector('.preference-price');
+      const name = nameInput ? nameInput.value.trim() : '';
+      
+      // Don't save if name is empty
+      if (!name) {
+        return;
+      }
+      
+      // Convert the row to a regular row
+      row.className = "draggable";
+      
+      if (method === "Individual Pricing") {
+        const price = priceInput ? priceInput.value : '0';
+        row.innerHTML = `
+          <td class="drag-handle">⋮⋮</td>
+          <td class="editable" data-field="name">${escapeHtml(name)}</td>
+          <td class="editable" data-field="price"><input type="number" value="${price}" min="0" step="0.01" class="price-input hidden"> <span class="price-display">${price}$</span></td>
+          <td><button type="button" class="delete-btn" onclick="deletePreferenceRow(this)">✕</button></td>
+        `;
+      } else if (method === "Group Pricing") {
+        row.innerHTML = `
+          <td class="drag-handle">⋮⋮</td>
+          <td class="editable" data-field="name">${escapeHtml(name)}</td>
+          <td><span class="price-display">Group Pricing</span></td>
+          <td><button type="button" class="delete-btn" onclick="deletePreferenceRow(this)">✕</button></td>
+        `;
+      } else { // No Charge
+        row.innerHTML = `
+          <td class="drag-handle">⋮⋮</td>
+          <td class="editable" data-field="name">${escapeHtml(name)}</td>
+          <td><span class="price-display">No Charge</span></td>
+          <td><button type="button" class="delete-btn" onclick="deletePreferenceRow(this)">✕</button></td>
+        `;
+      }
+      
+      // Add double-click event to the new cells for editing
+      addDoubleClickEditing(row);
+      
+      // Hide empty state if it exists
+      if (emptyState) {
+        emptyState.style.display = "none";
+      }
+      
+      validateForm();
+      prepareIndependentData(); // Update hidden data
     }
     
     // Function to delete a preference row
@@ -1017,6 +1056,9 @@
             emptyState.style.display = "block";
           }
         }
+        
+        validateForm();
+        prepareIndependentData(); // Update hidden data
       }
     }
 
@@ -1073,6 +1115,8 @@
         cell.textContent = value;
       }
       cell.classList.remove('editing');
+      validateForm();
+      prepareIndependentData(); // Update hidden data
     }
     
     function cancelEdit(cell, field, originalValue) {
@@ -1084,24 +1128,36 @@
       cell.classList.remove('editing');
     }
 
+    // Initialize the pricing UI
     updatePricingUI();
 
     // Dependent Table Logic
     const addRowBtn = document.getElementById("addRowBtn");
     const addColumnBtn = document.getElementById("addColumnBtn");
+    const rowNameInput = document.getElementById("rowNameInput");
+    const columnNameInput = document.getElementById("columnNameInput");
+
+    // Update button text based on input (button text only, not content)
+    rowNameInput.addEventListener('input', function() {
+      const value = this.value.trim();
+      addRowBtn.textContent = value || 'Add Row';
+    });
+
+    columnNameInput.addEventListener('input', function() {
+      const value = this.value.trim();
+      addColumnBtn.textContent = value || 'Add Column';
+    });
 
     // Add Row
-    addRowBtn.addEventListener("click", () => {
-      addRowInline();
-    });
+    addRowBtn.addEventListener("click", addRowInline);
 
     function addRowInline() {
       const tbody = document.getElementById("dependentTableBody");
       const headerRow = document.querySelector("#dependentTable thead tr");
-      const columnCount = headerRow.cells.length - 1; // Subtract 1 for the order column
+      const columnCount = headerRow.cells.length - 1;
       
       const newRow = document.createElement("tr");
-      newRow.className = "new-row-form";
+      newRow.className = "draggable";
 
       // Order cell with drag handle
       const orderCell = document.createElement("td");
@@ -1109,21 +1165,22 @@
       orderCell.textContent = "⋮⋮";
       newRow.appendChild(orderCell);
 
-      // Ingredient cell with inline form
-      const ingredientCell = document.createElement("td");
-      ingredientCell.innerHTML = `
-        <div style="display: flex; gap: 10px; align-items: center;">
-          <input type="text" class="inline-input ingredient-name" placeholder="Ingredient name" style="flex: 1;">
-          <input type="number" class="inline-input ingredient-price" placeholder="Price" value="0" min="0" step="0.01" style="width: 80px;">
-          <span>$</span>
-        </div>
+      // Row name cell (first column after order) - Use default name, not input value
+      const rowNameCell = document.createElement("td");
+      rowNameCell.className = "row-name-cell";
+      const rowName = "Row " + rowCounter;
+      rowCounter++;
+      rowNameCell.setAttribute('data-row-name', rowName);
+      rowNameCell.innerHTML = `
+        <span class="name-display editable" data-field="row-name">${escapeHtml(rowName)}</span>
+        <button type="button" class="delete-btn" onclick="deleteRow(this)">✕</button>
       `;
-      newRow.appendChild(ingredientCell);
+      newRow.appendChild(rowNameCell);
 
-      // Add preference cells for each column (skip order and ingredient columns)
-      for (let i = 2; i < columnCount + 1; i++) {
+      // Add preference cells for each column (skip order column)
+      for (let i = 1; i < columnCount; i++) {
         const cell = document.createElement("td");
-        const colIndex = i - 2;
+        const colIndex = i - 1;
         cell.innerHTML = `
         <div class="checkbox-cell">
           <label><input type="checkbox" class="rule-checkbox" data-type="show" data-column="${colIndex}"> Show</label>
@@ -1135,198 +1192,108 @@
         newRow.appendChild(cell);
       }
 
-      // Add action cell
-      const actionCell = document.createElement("td");
-      actionCell.className = "form-actions";
-      actionCell.innerHTML = `
-        <button type="button" class="btn btn-success btn-sm save-row">Save</button>
-        <button type="button" class="btn btn-danger btn-sm cancel-row">Cancel</button>
-      `;
-      newRow.appendChild(actionCell);
-
       tbody.appendChild(newRow);
       
-      // Add event listeners to the new row buttons
-      const saveBtn = newRow.querySelector('.save-row');
-      const cancelBtn = newRow.querySelector('.cancel-row');
+      // Add click events to the new editable elements
+      addSeparateClickEditing(rowNameCell);
       
-      saveBtn.addEventListener('click', function() {
-        const nameInput = newRow.querySelector('.ingredient-name');
-        const priceInput = newRow.querySelector('.ingredient-price');
-        const name = nameInput.value.trim();
-        const price = priceInput.value;
-        
-        if (!name) {
-          alert("Please enter an ingredient name");
-          return;
-        }
-        
-        // Convert the row to a regular row
-        newRow.className = "draggable";
-        
-        // Update ingredient cell with separate editable elements
-        const ingredientCell = newRow.cells[1];
-        ingredientCell.className = "ingredient-cell";
-        ingredientCell.setAttribute('data-ingredient-name', name);
-        ingredientCell.setAttribute('data-ingredient-price', price);
-        ingredientCell.innerHTML = `
-          <span class="name-display editable" data-field="ingredient-name">${escapeHtml(name)}</span>
-          <span class="price-display editable" data-field="ingredient-price">${price}$</span>
-          <button type="button" class="delete-btn" onclick="deleteRow(this)">✕</button>
-        `;
-        
-        // Remove action cell
-        actionCell.remove();
-        
-        // Add click events to the new editable elements
-        addSeparateClickEditing(ingredientCell);
-        
-        // Hide empty state
-        dependentEmptyState.style.display = "none";
-      });
+      // Hide empty state
+      dependentEmptyState.style.display = "none";
       
-      cancelBtn.addEventListener('click', function() {
-        newRow.remove();
-        
-        // Show empty state if no rows left
-        if (tbody.children.length === 0) {
-          dependentEmptyState.style.display = "block";
-        }
-      });
+      validateForm();
+      prepareDependentData(); // Update hidden data
     }
 
     // Add Column
-    addColumnBtn.addEventListener("click", () => {
-      addColumnInline();
-    });
+    addColumnBtn.addEventListener("click", addColumnInline);
 
     function addColumnInline() {
       const headerRow = document.querySelector("#dependentTable thead tr");
       const tbody = document.getElementById("dependentTableBody");
-      const colIndex = document.querySelectorAll("#dependentTable thead th").length - 2; // Subtract order and ingredient columns
+      const colIndex = document.querySelectorAll("#dependentTable thead th").length - 1;
       
-      // Create new header cell with inline form
+      // Create new header cell with input field for immediate editing
       const newHeader = document.createElement("th");
-      newHeader.className = "new-column-form";
+      newHeader.className = "column-header";
+      const columnName = "Column " + columnCounter;
+      columnCounter++;
+      newHeader.setAttribute('data-column-name', columnName);
       newHeader.innerHTML = `
-        <div style="display: flex; gap: 10px; align-items: center;">
-          <input type="text" class="inline-input column-name" placeholder="Column name" style="flex: 1;">
-          <input type="number" class="inline-input column-price" placeholder="Price" value="0" min="0" step="0.01" style="width: 80px;">
-          <span>$</span>
-          <div class="form-actions">
-            <button type="button" class="btn btn-success btn-sm save-column">Save</button>
-            <button type="button" class="btn btn-danger btn-sm cancel-column">Cancel</button>
-          </div>
-        </div>
+        <input type="text" class="inline-input column-name-input" value="${escapeHtml(columnName)}" placeholder="Enter column name">
+        <button type="button" class="delete-btn" onclick="deleteColumn(${colIndex})">✕</button>
       `;
       headerRow.appendChild(newHeader);
+      
+      // Focus the input field
+      const input = newHeader.querySelector('.column-name-input');
+      input.focus();
+      
+      // Save on Enter key or blur
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          saveColumnName(newHeader, input.value);
+        } else if (e.key === 'Escape') {
+          saveColumnName(newHeader, columnName);
+        }
+      });
+      
+      input.addEventListener('blur', function() {
+        saveColumnName(newHeader, input.value);
+      });
       
       // Add cells for each row
       const rows = document.querySelectorAll('#dependentTableBody tr');
       rows.forEach((row) => {
-        // Skip if it's a new row form
-        if (row.classList.contains('new-row-form')) {
-          const cell = document.createElement("td");
-          cell.innerHTML = `
-          <div class="checkbox-cell">
-            <label><input type="checkbox" class="rule-checkbox" data-type="show" data-column="${colIndex}"> Show</label>
-            <label><input type="checkbox" class="rule-checkbox" data-type="default" data-column="${colIndex}"> Default</label>
-            <label><input type="checkbox" class="rule-checkbox" data-type="required" data-column="${colIndex}"> Required</label>
-            <label><input type="checkbox" class="rule-checkbox" data-type="allow_more" data-column="${colIndex}"> Allow More</label>
-          </div>
-        `;
-          row.appendChild(cell);
-        } else {
-          const cell = document.createElement("td");
-          cell.innerHTML = `
-          <div class="checkbox-cell">
-            <label><input type="checkbox" class="rule-checkbox" data-type="show" data-column="${colIndex}"> Show</label>
-            <label><input type="checkbox" class="rule-checkbox" data-type="default" data-column="${colIndex}"> Default</label>
-            <label><input type="checkbox" class="rule-checkbox" data-type="required" data-column="${colIndex}"> Required</label>
-            <label><input type="checkbox" class="rule-checkbox" data-type="allow_more" data-column="${colIndex}"> Allow More</label>
-          </div>
-        `;
-          row.appendChild(cell);
-        }
+        const cell = document.createElement("td");
+        cell.innerHTML = `
+        <div class="checkbox-cell">
+          <label><input type="checkbox" class="rule-checkbox" data-type="show" data-column="${colIndex}"> Show</label>
+          <label><input type="checkbox" class="rule-checkbox" data-type="default" data-column="${colIndex}"> Default</label>
+          <label><input type="checkbox" class="rule-checkbox" data-type="required" data-column="${colIndex}"> Required</label>
+          <label><input type="checkbox" class="rule-checkbox" data-type="allow_more" data-column="${colIndex}"> Allow More</label>
+        </div>
+      `;
+        row.appendChild(cell);
       });
       
-      // Add event listeners to the new header buttons
-      const saveBtn = newHeader.querySelector('.save-column');
-      const cancelBtn = newHeader.querySelector('.cancel-column');
+      // Enable the add row button now that we have at least one column
+      updateAddRowButtonState();
       
-      saveBtn.addEventListener('click', function() {
-        const nameInput = newHeader.querySelector('.column-name');
-        const priceInput = newHeader.querySelector('.column-price');
-        const name = nameInput.value.trim();
-        const price = priceInput.value;
-        
-        if (!name) {
-          alert("Please enter a column name");
-          return;
-        }
-        
-        // Convert the header to a regular header with separate editable elements
-        newHeader.className = "column-header";
-        newHeader.setAttribute('data-column-name', name);
-        newHeader.setAttribute('data-column-price', price);
-        newHeader.innerHTML = `
-          <span class="name-display editable" data-field="column-name">${escapeHtml(name)}</span>
-          <span class="price-display editable" data-field="column-price">${price}$</span>
-          <button type="button" class="delete-btn" onclick="deleteColumn(${colIndex})">✕</button>
-        `;
-        
-        // Add click events to the new editable elements
-        addSeparateClickEditing(newHeader);
-        
-        // Hide empty state
-        dependentEmptyState.style.display = "none";
-      });
+      // Hide empty state
+      dependentEmptyState.style.display = "none";
       
-      cancelBtn.addEventListener('click', function() {
-        // Remove the column from header
-        newHeader.remove();
-        
-        // Remove the column from each row
-        const rows = document.querySelectorAll('#dependentTableBody tr');
-        rows.forEach(row => {
-          if (row.cells[colIndex + 2]) { // +2 for order and ingredient columns
-            row.deleteCell(colIndex + 2);
-          }
-        });
-        
-        // Show empty state if no columns left (except order and ingredient)
-        if (headerRow.cells.length <= 2) {
-          dependentEmptyState.style.display = "block";
-        }
-      });
+      validateForm();
+      prepareDependentData(); // Update hidden data
     }
 
-    // Add separate click editing for ingredient and column headers
+    function saveColumnName(header, name) {
+      const trimmedName = name.trim() || "Column " + columnCounter;
+      header.innerHTML = `
+        <span class="name-display editable" data-field="column-name">${escapeHtml(trimmedName)}</span>
+        <button type="button" class="delete-btn" onclick="deleteColumn(${Array.from(header.parentNode.children).indexOf(header) - 1})">✕</button>
+      `;
+      header.setAttribute('data-column-name', trimmedName);
+      
+      // Add click events to the new editable elements
+      addSeparateClickEditing(header);
+      prepareDependentData(); // Update hidden data
+    }
+
+    // Add separate click editing for row and column headers
     function addSeparateClickEditing(element) {
       const editableElements = element.querySelectorAll('.editable');
       editableElements.forEach(el => {
         el.addEventListener('click', function(e) {
           e.stopPropagation();
           const field = this.getAttribute('data-field');
-          const currentValue = this.textContent.replace('$', '').trim();
+          const currentValue = this.textContent.trim();
           
           // Create input field
-          let input;
-          if (field.includes('price')) {
-            input = document.createElement('input');
-            input.type = 'number';
-            input.className = 'inline-input';
-            input.value = currentValue;
-            input.min = "0";
-            input.step = "0.01";
-            input.style.width = '60px';
-          } else {
-            input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'inline-input';
-            input.value = currentValue;
-            input.style.width = '120px';
-          }
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.className = 'inline-input';
+          input.value = currentValue;
+          input.style.width = '120px';
           
           // Replace element content with input
           this.innerHTML = '';
@@ -1351,110 +1318,26 @@
     }
     
     function saveSeparateEdit(element, field, value) {
-      // Trim leading zeros for numeric fields
-      if (field.includes('price')) {
-        value = parseFloat(value).toString();
-      }
-      
-      if (field.includes('price')) {
-        element.innerHTML = `${value}$`;
-      } else {
-        element.textContent = value;
-      }
+      element.textContent = value;
       element.classList.remove('editing');
       
       // Update data attributes
       const parent = element.closest('td, th');
       if (parent) {
-        if (field === 'ingredient-name') {
-          parent.setAttribute('data-ingredient-name', value);
-        } else if (field === 'ingredient-price') {
-          parent.setAttribute('data-ingredient-price', value);
+        if (field === 'row-name') {
+          parent.setAttribute('data-row-name', value);
         } else if (field === 'column-name') {
           parent.setAttribute('data-column-name', value);
-        } else if (field === 'column-price') {
-          parent.setAttribute('data-column-price', value);
         }
       }
+      
+      validateForm();
+      prepareDependentData(); // Update hidden data
     }
     
     function cancelSeparateEdit(element, field, originalValue) {
-      if (field.includes('price')) {
-        element.innerHTML = `${originalValue}$`;
-      } else {
-        element.textContent = originalValue;
-      }
+      element.textContent = originalValue;
       element.classList.remove('editing');
-    }
-
-    // Collect all rules from the dependent table
-    function collectRules() {
-      const rules = [];
-      const rows = document.querySelectorAll('#dependentTableBody tr');
-      
-      rows.forEach((row, ingredientIndex) => {
-        const cells = row.querySelectorAll('td');
-        // Skip first two cells (order and ingredient)
-        for (let i = 2; i < cells.length; i++) {
-          const cell = cells[i];
-          const columnIndex = i - 2;
-          const showCheckbox = cell.querySelector('input[data-type="show"]');
-          const defaultCheckbox = cell.querySelector('input[data-type="default"]');
-          const requiredCheckbox = cell.querySelector('input[data-type="required"]');
-          const allowMoreCheckbox = cell.querySelector('input[data-type="allow_more"]');
-          
-          rules.push({
-            ingredient_index: ingredientIndex,
-            column_index: columnIndex,
-            show: showCheckbox ? showCheckbox.checked : false,
-            default: defaultCheckbox ? defaultCheckbox.checked : false,
-            required: requiredCheckbox ? requiredCheckbox.checked : false,
-            allow_more: allowMoreCheckbox ? allowMoreCheckbox.checked : false
-          });
-        }
-      });
-      
-      return rules;
-    }
-
-    // Collect ingredients data from the table - USING DATA ATTRIBUTES
-    function collectIngredients() {
-      const ingredients = [];
-      const ingredientsPrice = [];
-      const rows = document.querySelectorAll('#dependentTableBody tr');
-      
-      rows.forEach(row => {
-        const ingredientCell = row.cells[1];
-        const name = ingredientCell.getAttribute('data-ingredient-name');
-        const price = ingredientCell.getAttribute('data-ingredient-price');
-        
-        if (name) {
-          ingredients.push(name);
-          ingredientsPrice.push(price || "0");
-        }
-      });
-      
-      return { ingredients, ingredientsPrice };
-    }
-
-    // Collect columns data from the table - USING DATA ATTRIBUTES
-    function collectColumns() {
-      const columns = [];
-      const columnsPrice = [];
-      const columnHeaders = document.querySelectorAll('#dependentTable thead th');
-      
-      for (let i = 2; i < columnHeaders.length; i++) {
-        const columnHeader = columnHeaders[i];
-        const name = columnHeader.getAttribute('data-column-name');
-        const price = columnHeader.getAttribute('data-column-price');
-        
-        if (name) {
-          columns.push(name);
-          columnsPrice.push(price || "0");
-        }
-      }
-      
-      return { columns, columnsPrice };
     }
 
     // Delete Row
@@ -1468,6 +1351,9 @@
         if (tbody.children.length === 0) {
           dependentEmptyState.style.display = "block";
         }
+        
+        validateForm();
+        prepareDependentData(); // Update hidden data
       }
     }
 
@@ -1478,153 +1364,252 @@
       const headerRow = document.querySelector("#dependentTable thead tr");
       const rows = document.querySelectorAll("#dependentTable tr");
       
-      // Delete the column from header (add 2 because of order and ingredient columns)
-      if (headerRow.cells[index + 2]) {
-        headerRow.deleteCell(index + 2);
+      // Delete the column from header
+      if (headerRow.cells[index + 1]) {
+        headerRow.deleteCell(index + 1);
       }
       
       // Delete the column from each row
       rows.forEach(row => {
-        if (row.cells[index + 2]) {
-          row.deleteCell(index + 2);
+        if (row.cells[index + 1]) {
+          row.deleteCell(index + 1);
         }
       });
       
-      // Show empty state if no columns left (except order and ingredient)
-      if (headerRow.cells.length <= 2) {
+      // Update add row button state
+      updateAddRowButtonState();
+      
+      // Show empty state if no columns left
+      if (headerRow.cells.length <= 1) {
         dependentEmptyState.style.display = "block";
       }
+      
+      validateForm();
+      prepareDependentData(); // Update hidden data
     }
 
-    // Auto-trim leading zeros from numeric inputs
-    function addAutoTrimZeros() {
-      document.addEventListener('blur', function(e) {
-        if (e.target.type === 'number' && e.target.value) {
-          // Parse the value to remove leading zeros
-          const parsedValue = parseFloat(e.target.value);
-          if (!isNaN(parsedValue)) {
-            e.target.value = parsedValue;
+    // Update add row button state based on column count
+    function updateAddRowButtonState() {
+      const headerRow = document.querySelector("#dependentTable thead tr");
+      addRowBtn.disabled = headerRow.cells.length < 2;
+    }
+
+    // Prepare independent preferences data for submission
+    function prepareIndependentData() {
+      const container = document.getElementById('independent-data');
+      container.innerHTML = ''; // Clear previous data
+      
+      const method = pricingMethod.value;
+      let table;
+      
+      if (method === "Individual Pricing") {
+        table = document.getElementById("individualPricingTable");
+      } else if (method === "Group Pricing") {
+        table = document.getElementById("groupPricingTable");
+      } else {
+        table = document.getElementById("noChargeTable");
+      }
+      
+      const rows = table.querySelectorAll("tbody tr:not(.new-row-form)");
+      
+      rows.forEach((row, index) => {
+        const nameCell = row.querySelector('td[data-field="name"]');
+        const priceCell = row.querySelector('td[data-field="price"]');
+        
+        if (nameCell) {
+          const name = nameCell.textContent.trim();
+          const price = priceCell ? priceCell.querySelector('.price-input').value : '0';
+          
+          // Create hidden inputs for each preference - matching backend parameter names
+          const nameInput = document.createElement('input');
+          nameInput.type = 'hidden';
+          nameInput.name = `preferences[]`; // Changed to match backend
+          nameInput.value = name;
+          container.appendChild(nameInput);
+          
+          const priceInput = document.createElement('input');
+          priceInput.type = 'hidden';
+          priceInput.name = `prices[]`; // Changed to match backend
+          priceInput.value = price;
+          container.appendChild(priceInput);
+        }
+      });
+    }
+
+    // Prepare dependent table data for submission
+    function prepareDependentData() {
+      const container = document.getElementById('dependent-data');
+      container.innerHTML = ''; // Clear previous data
+      
+      const headerRow = document.querySelector("#dependentTable thead tr");
+      const rows = document.querySelectorAll("#dependentTableBody tr");
+      
+      // Save column names
+      const columns = [];
+      for (let i = 1; i < headerRow.cells.length; i++) {
+        const columnHeader = headerRow.cells[i];
+        const columnName = columnHeader.getAttribute('data-column-name') || `Column ${i}`;
+        columns.push(columnName);
+        
+        const columnInput = document.createElement('input');
+        columnInput.type = 'hidden';
+        columnInput.name = `columns[]`; // Changed to match backend
+        columnInput.value = columnName;
+        container.appendChild(columnInput);
+        
+        // Add column prices (default to 0)
+        const columnPriceInput = document.createElement('input');
+        columnPriceInput.type = 'hidden';
+        columnPriceInput.name = `columns_price[]`; // Changed to match backend
+        columnPriceInput.value = '0';
+        container.appendChild(columnPriceInput);
+      }
+      
+      // Save row data (ingredients)
+      const rulesData = [];
+      rows.forEach((row, rowIndex) => {
+        const rowNameCell = row.cells[1]; // First cell after order
+        const rowName = rowNameCell.getAttribute('data-row-name') || `Row ${rowIndex + 1}`;
+        
+        // Save row name (ingredient)
+        const rowNameInput = document.createElement('input');
+        rowNameInput.type = 'hidden';
+        rowNameInput.name = `ingredients[]`; // Changed to match backend
+        rowNameInput.value = rowName;
+        container.appendChild(rowNameInput);
+        
+        // Save ingredient prices (default to 0)
+        const ingredientPriceInput = document.createElement('input');
+        ingredientPriceInput.type = 'hidden';
+        ingredientPriceInput.name = `ingredients_price[]`; // Changed to match backend
+        ingredientPriceInput.value = '0';
+        container.appendChild(ingredientPriceInput);
+        
+        // Save checkbox values for each column and build rules JSON
+        for (let colIndex = 0; colIndex < columns.length; colIndex++) {
+          const cell = row.cells[colIndex + 2]; // +2 for order and row name cells
+          if (cell) {
+            const checkboxes = cell.querySelectorAll('input[type="checkbox"]');
+            const rule = {
+              ingredient_index: rowIndex,
+              column_index: colIndex
+            };
+            
+            checkboxes.forEach(checkbox => {
+              const type = checkbox.getAttribute('data-type');
+              const col = checkbox.getAttribute('data-column');
+              
+              if (parseInt(col) === colIndex) {
+                rule[type] = checkbox.checked;
+              }
+            });
+            
+            rulesData.push(rule);
           }
         }
-      }, true);
-    }
-
-    // Form submission
-    form.addEventListener('submit', function(e) {
-      const type = document.querySelector('input[name="type"]:checked').value;
+      });
       
-      if (type === "Independent") {
-        // For Independent type, collect preferences and prices from the current DOM order
-        const pricingMethod = document.getElementById("pricingMethod").value;
-        const preferences = [];
-        const prices = [];
-        
-        if (pricingMethod === "Individual Pricing") {
-          const table = document.getElementById("individualPricingTable");
-          const rows = table.querySelectorAll("tbody tr");
-          
-          rows.forEach(row => {
-            const cells = row.cells;
-            preferences.push(cells[1].textContent.trim());
-            const priceInput = cells[2].querySelector("input");
-            prices.push(priceInput ? priceInput.value : "0");
-          });
-        } else if (pricingMethod === "Group Pricing") {
-          const table = document.getElementById("groupPricingTable");
-          const rows = table.querySelectorAll("tbody tr");
-          const groupPriceInput = document.querySelector('input[name="groupPrice"]');
-          const groupPrice = groupPriceInput ? groupPriceInput.value : "0";
-          
-          rows.forEach(row => {
-            const cells = row.cells;
-            preferences.push(cells[1].textContent.trim());
-            prices.push(groupPrice);
-          });
-        } else { // No Charge
-          const table = document.getElementById("noChargeTable");
-          const rows = table.querySelectorAll("tbody tr");
-          
-          rows.forEach(row => {
-            const cells = row.cells;
-            preferences.push(cells[1].textContent.trim());
-            prices.push("0");
-          });
-        }
-        
-        // Add hidden inputs for preferences and prices
-        preferences.forEach((pref, index) => {
-          const prefInput = document.createElement('input');
-          prefInput.type = 'hidden';
-          prefInput.name = 'preferences[]';
-          prefInput.value = pref;
-          form.appendChild(prefInput);
-          
-          const priceInput = document.createElement('input');
-          priceInput.type = 'hidden';
-          priceInput.name = 'prices[]';
-          priceInput.value = prices[index];
-          form.appendChild(priceInput);
-        });
-        
-      } else if (type === "Dependent") {
-        // For Dependent type, collect all data from the current DOM using data attributes
-        const { ingredients, ingredientsPrice } = collectIngredients();
-        const { columns, columnsPrice } = collectColumns();
-        const rules = collectRules();
-        
-        console.log("Submitting Dependent data:");
-        console.log("Ingredients:", ingredients);
-        console.log("Ingredients Price:", ingredientsPrice);
-        console.log("Columns:", columns);
-        console.log("Columns Price:", columnsPrice);
-        console.log("Rules:", rules);
-        
-        // Add hidden inputs for ingredients
-        ingredients.forEach((ingredient, index) => {
-          const ingredientInput = document.createElement('input');
-          ingredientInput.type = 'hidden';
-          ingredientInput.name = 'ingredients[]';
-          ingredientInput.value = ingredient;
-          form.appendChild(ingredientInput);
-          
-          const priceInput = document.createElement('input');
-          priceInput.type = 'hidden';
-          priceInput.name = 'ingredients_price[]';
-          priceInput.value = ingredientsPrice[index];
-          form.appendChild(priceInput);
-        });
-        
-        // Add hidden inputs for columns
-        columns.forEach((column, index) => {
-          const columnInput = document.createElement('input');
-          columnInput.type = 'hidden';
-          columnInput.name = 'columns[]';
-          columnInput.value = column;
-          form.appendChild(columnInput);
-          
-          const priceInput = document.createElement('input');
-          priceInput.type = 'hidden';
-          priceInput.name = 'columns_price[]';
-          priceInput.value = columnsPrice[index];
-          form.appendChild(priceInput);
-        });
-        
-        // Add rules as JSON
+      // Add rules as JSON
+      if (rulesData.length > 0) {
         const rulesInput = document.createElement('input');
         rulesInput.type = 'hidden';
         rulesInput.name = 'rules_json';
-        rulesInput.value = JSON.stringify(rules);
-        form.appendChild(rulesInput);
+        rulesInput.value = JSON.stringify(rulesData);
+        container.appendChild(rulesInput);
+      }
+    }
+
+    // Form validation
+    function validateForm() {
+      const groupName = document.getElementById('name').value.trim();
+      const type = document.querySelector('input[name="type"]:checked').value;
+      let isValid = false;
+      
+      if (!groupName) {
+        isValid = false;
+      } else if (type === "Independent") {
+        // Check if there's at least one preference
+        const pricingMethod = document.getElementById("pricingMethod").value;
+        let table;
+        
+        if (pricingMethod === "Individual Pricing") {
+          table = document.getElementById("individualPricingTable");
+        } else if (pricingMethod === "Group Pricing") {
+          table = document.getElementById("groupPricingTable");
+        } else {
+          table = document.getElementById("noChargeTable");
+        }
+        
+        const rows = table.querySelectorAll("tbody tr:not(.new-row-form)");
+        isValid = rows.length > 0;
+        
+        // Prepare independent data for submission
+        if (isValid) prepareIndependentData();
+      } else { // Dependent
+        // Check if there's at least one column and one row
+        const headerRow = document.querySelector("#dependentTable thead tr");
+        const tbody = document.getElementById("dependentTableBody");
+        const rows = tbody.querySelectorAll("tr");
+        
+        isValid = headerRow.cells.length > 1 && rows.length > 0;
+        
+        // Prepare dependent data for submission
+        if (isValid) prepareDependentData();
       }
       
-      // Let the form submit normally
+      submitBtn.disabled = !isValid;
+      return isValid;
+    }
+
+    // Add event listeners for form validation
+    document.getElementById('name').addEventListener('input', validateForm);
+    document.getElementById('minPref').addEventListener('input', validateForm);
+    document.getElementById('maxPref').addEventListener('input', validateForm);
+    document.getElementById('pricingMethod').addEventListener('change', validateForm);
+
+    // Form submission
+    form.addEventListener('submit', function(e) {
+      if (!validateForm()) {
+        e.preventDefault();
+        alert("Please fill in all required fields before submitting.");
+        return;
+      }
+      
+      // Add parent and child names for dependent type
+      const type = document.querySelector('input[name="type"]:checked').value;
+      if (type === "Dependent") {
+        const rowNameInput = document.getElementById('rowNameInput');
+        const columnNameInput = document.getElementById('columnNameInput');
+        
+        // Add row name (child name)
+        const childNameInput = document.createElement('input');
+        childNameInput.type = 'hidden';
+        childNameInput.name = 'rowName';
+        childNameInput.value = rowNameInput.value.trim() || 'Add Row';
+        form.appendChild(childNameInput);
+        
+        // Add column name (parent name)
+        const parentNameInput = document.createElement('input');
+        parentNameInput.type = 'hidden';
+        parentNameInput.name = 'columnName';
+        parentNameInput.value = columnNameInput.value.trim() || 'Add Column';
+        form.appendChild(parentNameInput);
+      }
+      
+      // Prepare data based on selected type
+      if (type === "Independent") {
+        prepareIndependentData();
+      } else {
+        prepareDependentData();
+      }
+      
+      console.log("Form submitted with data matching backend expectations");
     });
 
-    // Initialize sortable on page load
+    // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
       initializeSortable();
-      updatePricingUI();
-      addAutoTrimZeros();
+      validateForm();
     });
 </script>
 </body>
